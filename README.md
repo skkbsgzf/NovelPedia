@@ -67,29 +67,30 @@ python src/cli.py viz     --backend dots3-note
 python src/cli.py --list-backends    # 查看全部预设与能力字段（🆓免费 / 💰付费标注）
 ```
 
-内置 **18 个主流预设、4 种后端协议**（均可直接使用，模型 ID 以厂商最新文档为准）：
+内置 **16 个预设 / 4 种后端协议**（数据来源：2026 年 8 月各厂商最新文档）：
 
-| 预设名 | 厂商/后端协议 | 模型 | 成本 |
-|---|---|---|---|
-| `dots3-note` | 小红书 dots.ai（openai） | dots3-note-prev | 💰 |
-| `glm-4-flash` | 智谱 GLM-4.7-Flash（openai） | glm-4.7-flash | 🆓 |
-| `glm-4-long` | 智谱 1M 超长上下文（openai） | glm-4-long | 💰 |
-| `deepseek-chat` | DeepSeek-V3（openai） | deepseek-chat | 💰 |
-| `deepseek-reasoner` | DeepSeek-R1 推理（openai） | deepseek-reasoner | 💰 |
-| `kimi-k2` | Moonshot（openai） | kimi-k2-0711-preview | 💰 |
-| `qwen-max` / `qwen-plus` | 通义千问（openai） | qwen-max / qwen-plus | 💰 |
-| `openai-gpt-4o` / `openai-gpt-4o-mini` | OpenAI（openai） | gpt-4o / gpt-4o-mini | 💰 |
-| `claude-sonnet` / `claude-haiku` | Anthropic **原生 API**（anthropic） | claude-sonnet-4 / haiku | 💰 |
-| `gemini-flash` / `gemini-pro` | Google **原生 API**（google） | gemini-2.0-flash / 2.5-pro | 🆓/💰 |
-| `groq-llama` | Groq 高速（openai） | llama-3.3-70b-versatile | 🆓 |
-| `doubao-pro` | 豆包·火山方舟（openai） | doubao-pro-32k | 💰 |
-| `siliconflow` | 硅基流动（openai） | Qwen2.5-72B | 🆓 |
-| `qwen3-8b` | 本地 Ollama（ollama） | qwen3:8b | 🆓🏠 |
+| 预设名 | 厂商 / 后端协议 | 模型（2026 最新） | 上下文 | 成本 |
+|---|---|---|---|---|
+| `dots3-note` | 小红书 dots.ai（openai） | dots3-note-prev | 512K | 💰 |
+| `gpt-5` | OpenAI（openai） | **gpt-5** | 400K | 💰 |
+| `gpt-5-mini` | OpenAI 性价比（openai） | **gpt-5-mini** | 400K | 💰 |
+| `claude-opus-4-8` | Anthropic 旗舰（**anthropic 原生**） | **claude-opus-4-8** | **1M** | 💰 |
+| `claude-sonnet-4-6` | Anthropic 主力（**anthropic 原生**） | **claude-sonnet-4-6** | **1M** | 💰 |
+| `claude-haiku-4-5` | Anthropic 便宜快（**anthropic 原生**） | claude-haiku-4-5 | 200K | 💰 |
+| `gemini-3-flash` | Google 免费（**google 原生**） | **gemini-3-flash-preview** | **1M** | 🆓 |
+| `gemini-3-pro` | Google 旗舰（**google 原生**） | **gemini-3-pro-preview** | **2M** | 💰 |
+| `deepseek-v3-2` | DeepSeek V3.2 稀疏注意力（openai） | **deepseek-v3.2** | 128K | 💰 |
+| `deepseek-r1` | DeepSeek R1 推理（openai） | deepseek-r1-0528 | 128K | 💰 |
+| `kimi-k2-5` | Moonshot K2.5（openai） | **kimi-k2.5** | 262K | 💰 |
+| `qwen3-max` | 阿里通义 Qwen3-Max（openai） | **qwen3-max** | 262K | 💰 |
+| `glm-4.7-flash` | 智谱 GLM-4.7-Flash（openai） | glm-4.7-flash | 200K | 🆓 |
+| `glm-5-2` | 智谱 GLM-5.2 **1M MIT 开源**（openai） | **glm-5.2** | **1M** | 💰 |
+| `groq-llama` | Groq 高速（openai） | llama-3.3-70b-versatile | 128K | 🆓 |
+| `qwen3-8b` | 本地 Ollama（ollama） | qwen3:8b | 32K | 🆓🏠 |
 
-- **四种后端协议**：`ollama`（本地）/ `openai`（OpenAI 兼容，绝大多数厂商）/ `anthropic`（Claude 原生 /v1/messages）/ `google`（Gemini 原生 generateContent）——`llm_client.py` 已内置适配，无需配置
-- **换任何 OpenAI 兼容厂商**：往 `presets` 加一组即可（OpenRouter/智谱/DeepSeek/通义/Moonshot/豆包/硅基流动…）
+- **四种后端协议**：`ollama`（本地）/ `openai`（OpenAI 兼容，绝大多数厂商）/ `anthropic`（Claude 原生 /v1/messages）/ `google`（Gemini 原生 generateContent）——`llm_client.py` 已内置适配，**新增厂商只需往 `presets` 加一组**
 - **key 不落盘**：从环境变量 `LLM_API_KEY` 或 `--key` 传入；所有云端后端共用这一个 key 入口
-- **兼容旧名**：`local`→`qwen3-8b`、`cloud`→`dots3-note`、`xiaohongshu`、`glm`、`qwen3` 仍可用
+- **模型 ID 以厂商最新文档为准**——本表是 2026-08 查证值，厂商发新版后改 `model` 字段即可
 
 ### 角色路由（--role）
 
@@ -105,11 +106,11 @@ python src/cli.py --list-backends    # 查看全部预设与能力字段（🆓�
 | `embed` | 向量化（仅 ollama） | bge-m3 |
 
 ```bash
-# 主模型用本地 qwen3，评述/创作解析用 GLM-4.7-Flash，挖掘用 DeepSeek
+# 主模型用本地 qwen3，评述/创作解析用 Claude Sonnet 4.6，挖掘用 DeepSeek V3.2
 python src/cli.py collect --backend qwen3-8b
-python src/cli.py mine    --backend qwen3-8b --role mine=deepseek-chat
-python src/cli.py review  --backend qwen3-8b --role review=glm-4-flash
-python src/cli.py annotate --backend qwen3-8b --role review=glm-4-flash
+python src/cli.py mine    --backend qwen3-8b --role mine=deepseek-v3-2
+python src/cli.py review  --backend qwen3-8b --role review=claude-sonnet-4-6
+python src/cli.py annotate --backend qwen3-8b --role review=claude-sonnet-4-6
 ```
 
 > **运行时清晰提示**：每条命令启动都会打印当前后端摘要
