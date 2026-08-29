@@ -1,0 +1,27 @@
+{
+  "_说明": "管线唯一配置文件。所有路径/章数/模型都在这里改，代码不用动。run.bat 直接读它。",
+  "novel": {
+    "_说明": "原始小说：path 为 txt 绝对路径，chapters 为要处理的章数（决定数据库与产物规模）",
+    "name": "诡秘之主",
+    "path": "resource/小说.txt",
+    "chapters": 300
+  },
+  "llm": {
+    "_说明": "LLM 后端。可选: xiaohongshu(小红书dots.ai, 默认) / glm(智谱GLM-4-Flash, 免费) / qwen3(本地Ollama)。api_key 留空则从环境变量 LLM_API_KEY 读取。",
+    "backend": "dots3-note",
+    "api_key": "",
+    "embed_model": "bge-m3"
+  },
+  "run": {
+    "_说明": "运行行为。src_dir 指定读哪个 LLM 产物目录（可视化任务专用）；date_suffix 留空则自动用 日期_时间戳 拼输出文件夹名（同一天多次运行互不覆盖）；若手动指定固定后缀（如 20260827_incr），则多次运行进同一目录（settings_graph 增量累积）。archive 为知识库归档参数（长文本边际爆炸防护）。",
+    "src_dir": "cloud_fixed",
+    "date_suffix": "",
+    "archive": {
+      "_说明": "归档/活跃层参数(见 docs/doubt_index_design.md)。w_recent=最近N章出现过→活跃; k_freq=在≥N章出现→活跃; k_confirm=被后文证实N次→永久活跃(长程伏笔保护); every=每N章做一次代际压缩。",
+      "w_recent": 30,
+      "k_freq": 3,
+      "k_confirm": 2,
+      "every": 20
+    }
+  }
+}

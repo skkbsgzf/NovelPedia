@@ -1,0 +1,1386 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__NOVEL_NAME__ · 拆书知识库</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+/* ===== Wikipedia 风格基底 ===== */
+body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:#fff;color:#202122;font-size:15px;line-height:1.65}
+a{color:#3366cc;text-decoration:none}
+a:hover{text-decoration:underline}
+a.wl{cursor:pointer}
+/* 顶栏 */
+.topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #a2a9b1;display:flex;align-items:center;gap:14px;padding:8px 18px;flex-wrap:wrap}
+.topbar .brand{font-size:19px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.topbar .brand small{font-weight:400;font-size:12px;color:#54595d;margin-left:6px}
+.search{position:relative;flex:1;min-width:200px;max-width:420px}
+.search input{width:100%;padding:7px 11px;border:1px solid #a2a9b1;border-radius:2px;font-size:13px;outline:none}
+.search input:focus{border-color:#3366cc;box-shadow:0 0 0 1px #3366cc}
+.sug{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #a2a9b1;border-top:none;max-height:330px;overflow-y:auto;display:none;z-index:50;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.sug.on{display:block}
+.sug div{padding:6px 11px;font-size:13px;cursor:pointer;border-bottom:1px solid #eaecf0;display:flex;gap:8px;align-items:baseline}
+.sug div:hover,.sug div.sel{background:#eaf3ff}
+.sug .t{font-size:11px;color:#72777d;background:#eaecf0;border-radius:8px;padding:0 6px;flex:none}
+.topbar .cnt{font-size:12px;color:#54595d;white-space:nowrap}
+/* 主体三栏 */
+.layout{display:flex;align-items:flex-start;max-width:1500px;margin:0 auto}
+.side{width:246px;flex:none;border-right:1px solid #a2a9b1;padding:14px 0 60px;position:sticky;top:47px;height:calc(100vh - 47px);overflow-y:auto;background:#f8f9fa}
+.side h3{font-size:12px;color:#54595d;text-transform:uppercase;letter-spacing:.6px;margin:14px 14px 6px;font-weight:700}
+.side .nav a{display:block;padding:5px 14px;font-size:13.5px;color:#3366cc;border-left:3px solid transparent}
+.side .nav a:hover{background:#eaf3ff;text-decoration:none}
+.side .nav a.on{background:#eaf3ff;border-left-color:#3366cc;font-weight:600;color:#202122}
+.side .grp{margin-bottom:2px}
+.side .grp>.gh{padding:4px 14px;font-size:12.5px;color:#54595d;cursor:pointer;display:flex;justify-content:space-between;user-select:none}
+.side .grp>.gh:hover{background:#eaecf0}
+.side .grp .items{display:none;max-height:290px;overflow-y:auto}
+.side .grp.open .items{display:block}
+.side .grp .items a{display:block;padding:3px 14px 3px 26px;font-size:13px;color:#3366cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side .grp .items a:hover{background:#eaf3ff;text-decoration:none}
+.side .grp .items a.on{background:#eaf3ff;font-weight:600}
+.side .more{padding:4px 14px 4px 26px;font-size:12px;color:#72777d;cursor:pointer}
+.side .more:hover{text-decoration:underline}
+.main{flex:1;min-width:0;padding:22px 34px 90px;max-width:1000px}
+/* 面包屑 */
+.crumb{font-size:12.5px;color:#72777d;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eaecf0}
+.crumb a{color:#3366cc}
+.crumb span.sep{color:#a2a9b1;margin:0 6px}
+/* 词条标题 */
+h1.art{font-family:"Linux Libertine",Georgia,"Songti SC","SimSun",serif;font-size:31px;font-weight:400;line-height:1.25;border-bottom:1px solid #a2a9b1;padding-bottom:5px;margin-bottom:4px}
+.subtitle{font-size:13px;color:#54595d;font-style:italic;margin-bottom:16px}
+.cat-badge{display:inline-block;font-size:11.5px;background:#eaecf0;color:#54595d;border-radius:10px;padding:1px 9px;margin-left:8px;vertical-align:middle;font-style:normal}
+/* Infobox (Wikipedia 标志性右侧信息卡) */
+.infobox{float:right;width:270px;margin:0 0 16px 20px;background:#f8f9fa;border:1px solid #a2a9b1;font-size:13px;line-height:1.5}
+.infobox .ib-h{background:#eaecf0;padding:7px 10px;text-align:center;font-weight:700;font-size:14px;border-bottom:1px solid #a2a9b1}
+.infobox .ib-h .sub{font-weight:400;font-size:11.5px;color:#54595d;margin-top:2px}
+.infobox .ib-av{min-height:88px;border-bottom:1px solid #a2a9b1;background:#fff}
+.infobox .ib-av svg{display:block;width:100%;height:124px}
+.infobox .ib-av .ini{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#eaf3ff;color:#3366cc;font-size:18px;font-weight:700;margin:14px 0 14px 14px;border:1px solid #c8ccd1}
+.infobox table{width:100%;border-collapse:collapse}
+.infobox th,.infobox td{padding:5px 9px;vertical-align:top;border-top:1px solid #eaecf0;text-align:left;font-weight:400}
+.infobox th{background:#eaecf0;width:74px;color:#54595d;white-space:nowrap;font-size:12.5px}
+.infobox .ib-note{padding:6px 9px;font-size:11.5px;color:#72777d;border-top:1px solid #eaecf0;text-align:center}
+/* 正文 */
+.sec{margin-bottom:22px}
+.sec>h2{font-family:"Linux Libertine",Georgia,serif;font-size:21px;font-weight:400;border-bottom:1px solid #a2a9b1;padding-bottom:3px;margin-bottom:9px}
+.sec>h3{font-size:15.5px;font-weight:700;margin:14px 0 5px}
+.sec p{margin-bottom:9px}
+.lead{font-size:15.5px;line-height:1.75}
+ul.tight{margin:0 0 9px 20px}
+ul.tight li{margin-bottom:4px}
+.quote{border-left:3px solid #c8ccd1;background:#f8f9fa;padding:7px 12px;margin:0 0 7px;font-size:13.5px;color:#202122}
+.quote .src{display:block;font-size:11.5px;color:#72777d;margin-top:3px}
+.tag{display:inline-block;background:#eaf3ff;color:#3366cc;border:1px solid #c8ccd1;border-radius:11px;padding:1px 9px;font-size:12px;margin:0 5px 5px 0;cursor:pointer}
+.tag:hover{background:#3366cc;color:#fff}
+.tag.rel{background:#fdf6e3;color:#8a6d1a;border-color:#e8d9a8}
+/* 数据来源徽章 */
+.src-badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;vertical-align:middle;margin-left:5px;font-weight:500;cursor:help}
+.src-r{background:#e6ffed;color:#096c39;border:1px solid #9be9c1} /* 原文抽取 */
+.src-l{background:#fff4d6;color:#72591f;border:1px solid #f1d87a} /* LLM 推断 */
+.src-s{background:#eef4ff;color:#2a4d8a;border:1px solid #b8d1ff} /* 统计聚合 */
+.src-m{background:#f3e8ff;color:#5e2d8a;border:1px solid #d8b8ff} /* 混合 */
+.ib-src{padding:6px 10px;font-size:11px;color:#54595d;border-bottom:1px solid #eaecf0;background:#fff}
+.ib-src .src-badge{margin-left:0;margin-right:5px;cursor:default}
+.sec .src-note{float:right;font-size:11px;margin-top:3px}
+/* 权重等级徽章 */
+.lvl-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:3px;padding:0 6px;line-height:16px;vertical-align:middle;margin-right:4px}
+.lvl-s{background:#fff3cd;color:#8a6d1a;border:1px solid #e8d9a8}   /* S 核心 */
+.lvl-a{background:#e2f0ff;color:#1c5da8;border:1px solid #b8d1ff}   /* A 重要 */
+.lvl-b{background:#eaecf0;color:#54595d;border:1px solid #c8ccd1}   /* B 一般 */
+.lvl-c{background:#f8f9fa;color:#a2a9b1;border:1px solid #eaecf0}   /* C 边缘 */
+.side .items a .lvl-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+/* 短期条目弱化(只出现在少数几章的设定, 灰化+标注, 不删除) */
+.eph{opacity:.5}
+.eph-note{background:#f8f9fa;border:1px dashed #c8ccd1;padding:6px 10px;margin:8px 0;font-size:12.5px;color:#72777d;border-radius:2px}
+/* 设定页加宽 Infobox: 图谱占右侧半屏 */
+.infobox.ib-wide{width:min(46%,430px)}
+.infobox.ib-wide .ib-av svg{height:260px}
+@media(max-width:1100px){.infobox.ib-wide{width:100%}}
+/* 出场时间线 */
+.tl{display:flex;align-items:flex-end;gap:2px;height:52px;background:#f8f9fa;border:1px solid #eaecf0;padding:6px 8px;margin-bottom:6px;overflow-x:auto}
+.tl .b{flex:1;min-width:4px;background:#3366cc;border-radius:1px 1px 0 0;opacity:.78;position:relative}
+.tl .b:hover{opacity:1;background:#0b4fa8}
+.tl .b[title]:hover:after{content:attr(title);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#202122;color:#fff;font-size:11px;padding:2px 7px;border-radius:4px;white-space:nowrap;z-index:5}
+.tl-x{display:flex;justify-content:space-between;font-size:11px;color:#72777d;margin-bottom:12px}
+/* 卡片(剧情/概览) */
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-bottom:18px}
+/* 文风四维 */
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+.tbl th{background:#f8f9fa;text-align:left;padding:6px 10px;border-bottom:2px solid #a2a9b1;color:#54595d}
+.tbl td{padding:5px 10px;border-bottom:1px solid #eaecf0}
+.wd-legend{font-size:12px;color:#54595d;margin-bottom:4px}
+.wordcloud{width:100%;height:auto}
+/* 文风子标签导航 */
+.style-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.style-chip{display:inline-block;padding:4px 12px;font-size:13px;border:1px solid #c8ccd1;border-radius:14px;cursor:pointer;color:#3366cc;background:#fff;user-select:none}
+.style-chip:hover{background:#eaf3ff}
+.style-chip.on{background:#3366cc;color:#fff;border-color:#3366cc}
+.fold summary{cursor:pointer;color:#3366cc;font-size:13.5px;padding:6px 0;user-select:none}
+.review-row{margin:4px 0;font-size:13px;line-height:1.65}
+.review-row .badge{margin-right:6px}
+.fold[open] summary{margin-bottom:8px}
+/* 拉片画布 */
+.canvas-tb{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.cbtn{background:#fff;border:1px solid #c8ccd1;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:13.5px;color:#3366cc}
+.cbtn:hover{background:#eaf3ff}
+.canvas-wrap{position:relative;overflow:hidden;height:440px;border:1px solid #a2a9b1;border-radius:6px;background:linear-gradient(#f6f8fa 1px,transparent 1px),linear-gradient(90deg,#f6f8fa 1px,transparent 1px);background-size:22px 22px;touch-action:pan-x pan-y}
+.canvas-stage{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.shot-card{position:absolute;width:232px;background:#fff;border:1px solid #d5dbe0;border-radius:5px;padding:6px 9px;font-size:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.shot-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.15);border-color:#a2a9b1}
+.shot-card .sc-where{color:#0A7E8C;font-size:12px;margin:3px 0 1px}
+.shot-card .sc-who{color:#54595d;font-size:12px}
+.shot-card .sc-key{color:#202122;font-size:11.5px;line-height:1.45;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.concl-card{position:absolute;width:232px;background:#fff5f5;border:1px solid #e8b8b8;border-left:3px solid #d33;border-radius:5px;padding:6px 9px;font-size:12px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.concl-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.15)}
+/* 弹层 */
+.modal-mask{position:fixed;inset:0;background:rgba(15,20,28,.5);z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:36px 14px}
+.modal-box{background:#fff;max-width:620px;width:100%;border-radius:6px;padding:16px 18px;max-height:82vh;overflow-y:auto;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
+.stat{background:#f8f9fa;border:1px solid #a2a9b1;border-radius:2px;padding:11px 13px}
+.stat .k{font-size:11.5px;color:#54595d}
+.stat .v{font-size:21px;font-weight:700;margin-top:1px;color:#3366cc}
+.card{background:#fff;border:1px solid #a2a9b1;border-radius:2px;padding:13px 15px;margin-bottom:10px}
+.card .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.card .bd{font-size:13.5px;color:#202122}
+.card.danger{border-left:4px solid #d33}
+.card.warn{border-left:4px solid #fc3}
+.card.info{border-left:4px solid #3366cc}
+.card.ok{border-left:4px solid #00af89}
+.badge{font-size:11px;font-weight:700;border-radius:9px;padding:1px 8px;color:#fff;flex:none}
+.muted{color:#72777d;font-size:12.5px}
+.chain{display:none;margin-top:9px;background:#f8f9fa;border:1px dashed #c8ccd1;padding:9px 12px;font-size:12.5px;color:#54595d;white-space:pre-wrap;line-height:1.8}
+.card.open .chain{display:block}
+.clk{cursor:pointer}
+.clk:hover{background:#f8f9fa}
+/* 图谱 */
+.graphbox{border:1px solid #a2a9b1;background:#fff;margin-top:8px}
+.graphbox .gb-h{background:#eaecf0;padding:6px 11px;font-size:12.5px;color:#54595d;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #a2a9b1}
+.graphbox select{font-size:12px;padding:2px 5px;border:1px solid #a2a9b1;border-radius:2px}
+.legend{display:flex;gap:11px;font-size:11.5px;color:#54595d;flex-wrap:wrap;align-items:center}
+.legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+svg.graph{display:block;width:100%;height:440px;background:#fff;cursor:grab}
+svg.graph text{user-select:none;cursor:pointer}
+.tip{position:fixed;background:#202122;color:#fff;font-size:12px;padding:5px 9px;border-radius:4px;pointer-events:none;display:none;z-index:60;max-width:280px;line-height:1.5}
+/* 目录 TOC */
+.toc{display:inline-block;border:1px solid #a2a9b1;background:#f8f9fa;padding:9px 15px;font-size:13px;margin-bottom:16px;min-width:200px}
+.toc .t-h{font-weight:700;text-align:center;margin-bottom:4px;font-size:13px}
+.toc ol{margin:0;padding-left:20px}
+.toc a{color:#3366cc}
+/* 汉堡按钮(仅移动端显示) */
+.side-toggle{display:none;background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:#3366cc;padding:6px 10px;margin-right:2px;border-radius:4px}
+.side-toggle:hover{background:#eaf3ff}
+/* 移动端遮罩 */
+.side-mask{display:none}
+/* 响应式 */
+@media(max-width:900px){
+  .side-toggle{display:block}
+  .side{display:block;position:fixed;left:0;top:47px;bottom:0;width:264px;z-index:60;
+    transform:translateX(-105%);transition:transform .22s ease;box-shadow:2px 0 10px rgba(0,0,0,.16);
+    height:calc(100vh - 47px)}
+  .side.open{transform:none}
+  .side-mask{display:block;position:fixed;inset:0;background:rgba(15,20,28,.4);z-index:55;
+    opacity:0;pointer-events:none;transition:opacity .2s}
+  .side-mask.on{opacity:1;pointer-events:auto}
+  .main{padding:16px 16px 60px}
+  .infobox{float:none;width:100%;margin:0 0 14px}
+  h1.art{font-size:25px}
+}
+</style></head><body>
+
+<div class="topbar">
+  <button id="sideToggle" class="side-toggle" aria-label="打开目录">☰</button>
+  <div class="brand">📚 __NOVEL_NAME__<small>拆书知识库</small></div>
+  <div class="search">
+    <input id="q" placeholder="搜索人物 / 设定 / 语录…" autocomplete="off">
+    <div class="sug" id="sug"></div>
+  </div>
+  <div class="cnt" id="topcnt"></div>
+</div>
+<div id="sideMask" class="side-mask"></div>
+
+<div class="layout">
+  <nav class="side" id="side"></nav>
+  <main class="main" id="main"></main>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const DETAIL=__DETAIL_DATA__;
+const GRAPH=__GRAPH_DATA__;
+const PERSONALITY=__PERSONALITY_DATA__;
+const FEELINGS=__FEELINGS_DATA__;
+const CLUE=__CLUE_GRAPH__;
+const STYLE=__STYLE_DATA__;
+const SCENES_META=__SCENES_META__||[];
+const FORESHADOW=__FORESHADOW__||[];
+const SCENE_ANNOT=__SCENE_ANNOTATIONS__||[];
+const REVIEWS=__EDITOR_REVIEWS__||{};
+const RESUMES=__RESUMES_DATA__||[];
+const SETTINGS=__SETTINGS_SYSTEM__;
+const SG=__SETTINGS_GRAPH__||{terms:[],relations:[]};
+const CF=__CHAR_FACTS__||{};
+const EREG=__ENTITY_REG__||{};
+const LEXICON=__GENERIC_LEXICON__||{};
+window.__STYLE_BL__=__STYLE_BL_OBJ__;
+const WN=__WEBNOVEL_LEXICON__||{};
+const WNSUG=__WN_SUGGEST__||[];
+/* 短期条目弱化: 只出现在少数几章/场景的设定, 视觉上降权(灰化+标注), 但不删除 */
+function isEphemeral(t){
+  const fs=t.first_seen, ls=t.last_seen, sc=(t.source_scenes||[]).length;
+  if(fs!=null && ls!=null) return (ls-fs)<=2;
+  return sc<=2;
+}
+function spanText(t){
+  const fs=t.first_seen, ls=t.last_seen, sc=(t.source_scenes||[]).length;
+  if(fs!=null&&ls!=null&&ls!==fs) return '第 '+fs+'–'+ls+' 章 · '+sc+' 个场景';
+  if(fs!=null) return '第 '+fs+' 章 · '+sc+' 个场景';
+  return sc+' 个场景';
+}
+
+const NOVEL="__NOVEL_NAME__";
+
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* 数据来源徽章 —— 所有字段必须标清是原文抽/LLM推/统计聚合, 抑制幻觉 */
+const SRC={
+  R:'<span class="src-badge src-r" title="来自原文逐字抽取（未由本面板生成）">原文抽取</span>',
+  L:'<span class="src-badge src-l" title="由 LLM 推断总结，存在幻觉风险，建议复核">LLM 推断</span>',
+  S:'<span class="src-badge src-s" title="由规则统计聚合">统计聚合</span>',
+  M:'<span class="src-badge src-m" title="混合来源">混合</span>',
+  G:'<span class="src-badge" style="background:#eef2f5;color:#54595d" title="来自场景抽取数据">场景数据</span>'
+};
+
+/* ============ 索引构建 ============ */
+const CHARS={};      // 人物名 -> resume
+const CHAR_LIST=[];  // 按出场次数降序
+RESUMES.forEach(r=>{ if(!r||!r.name)return; CHARS[r.name]=r; CHAR_LIST.push(r); });
+CHAR_LIST.sort((a,b)=>((b.appearances||[]).length)-((a.appearances||[]).length));
+
+const TERMS={};      // 设定名 -> term
+const TERM_LIST=[];
+(SG.terms||[]).forEach(t=>{ if(!t||!t.name)return; TERMS[t.name]=t; TERM_LIST.push(t); });
+
+// 别名 -> 规范名
+const ALIAS={};
+Object.keys(EREG).forEach(k=>{
+  const e=EREG[k]; (e.aliases||[]).forEach(a=>{ if(a&&a!==e.canonical) ALIAS[a]=e.canonical; });
+});
+(SG.terms||[]).forEach(t=>{ (t.aliases||[]).forEach(a=>{ if(a&&a!==t.name) ALIAS[a]=t.name; }); });
+function canon(n){ return ALIAS[n]||n; }
+
+/* ============ 词条权重(解决"整合度高的词条排前面") ============
+   weight = 40·log10(1+暗线命中) + 25·log10(1+场景数) + 20·log10(1+关系度) + 15·被结论引用
+   分级: S≥60 核心 / A 35-60 重要 / B 15-35 一般 / C<15 边缘(侧栏折叠) */
+const CLUE_OCC={};   // 暗线实体出现次数
+(CLUE.entities||[]).forEach(e=>{CLUE_OCC[e.name]=e.occurrence||0;});
+const DEG={};        // 关系度 = relations + related
+(SG.relations||[]).forEach(r=>{DEG[r.from]=(DEG[r.from]||0)+1;DEG[r.to]=(DEG[r.to]||0)+1;});
+const CONCL_TEXT=(CLUE.conclusions||[]).map(c=>(c.fact||'')+' '+(c.reason||'')+' '+(c.hypothesis||'')).join(' ');
+function termWeight(t){
+  const n=t.name;
+  let d=DEG[n]||0; (t.related||[]).forEach(()=>{d++;});
+  // 返回原始分(不封顶, 保证排序区分度); 显示时用 fmtW 封顶到 100
+  const raw=40*Math.log10(1+(CLUE_OCC[n]||0))
+          +25*Math.log10(1+((t.source_scenes||[]).length))
+          +20*Math.log10(1+d)
+          +(CONCL_TEXT.indexOf(n)>=0?15:0);
+  return Math.round(raw*10)/10;
+}
+function fmtW(w){return Math.min(100,w);}
+function lvlOf(w){return w>=60?'S':(w>=35?'A':(w>=15?'B':'C'));}
+function lvlBadge(w){const l=lvlOf(w);return '<span class="lvl-badge lvl-'+l.toLowerCase()+'" title="整合度权重 '+w+'（暗线命中/场景覆盖/关系度/结论引用 综合）">'+l+'</span>';}
+function lvlDot(w){const l=lvlOf(w);const c={S:'#d4a017',A:'#3366cc',B:'#a2a9b1',C:'#eaecf0'}[l];
+  return l==='C'?'':'<span class="lvl-dot" style="background:'+c+'"></span>';}
+// 全站权重表 + 排名
+const TW={}, TRANK={};
+TERM_LIST.forEach(t=>{TW[t.name]=termWeight(t);});
+TERM_LIST.slice().sort((a,b)=>TW[b.name]-TW[a.name]).forEach((t,i)=>{TRANK[t.name]=i+1;});
+// 人物权重(同一公式, 场景数用 appearances 长度)
+function charWeight(c){
+  const n=c.name;
+  const raw=40*Math.log10(1+(CLUE_OCC[n]||0))
+          +25*Math.log10(1+((c.appearances||[]).length))
+          +20*Math.log10(1+(c.relations||[]).length)
+          +(CONCL_TEXT.indexOf(n)>=0?15:0);
+  return Math.round(raw*10)/10;
+}
+CHAR_LIST.forEach(c=>{c._w=charWeight(c);});
+CHAR_LIST.sort((a,b)=>b._w-a._w);
+
+/* ============ 通用名词判定 ============
+   词库来自公版资产 src/generic_lexicon.json(经 cli 注入 __GENERIC_LEXICON__),
+   与 pipeline 抽取过滤(setting_agent.convolve_settings)共用同一份文件, 跨书共享:
+   A 书沉淀的新通用词, B 书直接受益。只标灰不删数据。 */
+const LEX=__GENERIC_LEXICON__||{categories:{},patterns:[],protected:{prefixes:[]}};
+const GENERIC_SET=new Set(Object.values(LEX.categories||{}).reduce((a,b)=>a.concat(b||[]),[]));
+const GENERIC_PAT=(LEX.patterns||[]).map(p=>{try{return new RegExp(p);}catch(e){return null;}}).filter(Boolean);
+const GENERIC_PROT=(LEX.protected&&LEX.protected.prefixes)||[];
+function isGeneric(name, def){
+  const n=(name||'').trim();
+  if(!n) return true;
+  for(const pre of GENERIC_PROT){ if(n.startsWith(pre)) return false; }  // 《》【】包裹=专有
+  if(GENERIC_SET.has(n)) return true;      // 词典精确匹配
+  for(const re of GENERIC_PAT){ if(re.test(n)) return true; }  // S级xxx / 2000分 / 纯数字
+  return false;
+}
+const GENERIC_INFO={};  // name -> true
+TERM_LIST.forEach(t=>{ if(isGeneric(t.name,t.definition)) GENERIC_INFO[t.name]=true; });
+const GENERIC_COUNT=Object.keys(GENERIC_INFO).length;
+let showGeneric=false;   // 侧栏默认: 仅本书设定
+
+
+// 内链词典: name -> 'char' | 'term'
+const LTYPE={};
+Object.keys(CHARS).forEach(n=>LTYPE[n]='char');
+Object.keys(CF).forEach(n=>{ const c=canon(n); if(c&&!LTYPE[c]) LTYPE[c]='char'; });
+Object.keys(TERMS).forEach(n=>{ if(!LTYPE[n]) LTYPE[n]='term'; });
+const LNAMES=Object.keys(LTYPE).filter(n=>n&&n.length>=2).sort((a,b)=>b.length-a.length);
+let LRE=null;
+try{
+  LRE=new RegExp('('+LNAMES.map(n=>n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','g');
+}catch(e){ LRE=null; }
+function wl(text){
+  let s=esc(text);
+  if(!LRE||!s) return s;
+  LRE.lastIndex=0;
+  return s.replace(LRE,m=>(LTYPE[m]?'<a class="wl" data-t="'+LTYPE[m]+'" data-n="'+esc(m)+'">'+m+'</a>':m));
+}
+
+/* ============ 视图路由 ============ */
+let CUR={view:'overview',name:''};
+function go(view,name){
+  CUR={view:view,name:name||''};
+  // 分模块容错: 任一模块渲染失败不应导致整页不可用(尤其图谱/侧栏)
+  try{ renderMain(); }catch(err){ console.error('renderMain',err);
+    document.getElementById('main').innerHTML=
+      '<div class="card danger"><b>页面渲染出错</b><div class="muted">'+esc(err&&err.message)+'</div></div>'; }
+  try{ renderSide(); }catch(err){ console.error('renderSide',err); }
+  if(window.innerWidth<=900) closeSide();  // 移动端: 跳转后收起抽屉
+  window.scrollTo(0,0);
+}
+/* 移动端侧边栏抽屉 */
+function toggleSide(force){
+  const s=document.getElementById('side'), m=document.getElementById('sideMask');
+  const open=(force!==undefined)?force:!s.classList.contains('open');
+  s.classList.toggle('open',open);
+  if(m) m.classList.toggle('on',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeSide(){ toggleSide(false); }
+(function(){
+  const t=document.getElementById('sideToggle');
+  if(t) t.onclick=()=>toggleSide();
+  const m=document.getElementById('sideMask');
+  if(m) m.onclick=()=>closeSide();
+})();
+document.addEventListener('click',e=>{
+  const a=e.target.closest?e.target.closest('a.wl,[data-go]'):null;
+  if(!a)return;
+  e.preventDefault();
+  const t=a.dataset.t||a.dataset.go, n=a.dataset.n||a.dataset.name;
+  if(t==='char'&&CHARS[n]) go('char',n);
+  else if(t==='term'&&TERMS[n]) go('term',n);
+  else if(t) go(t,n);
+});
+
+/* ============ 侧栏目录 ============ */
+const CAT_GROUPS={};  // 设定按分类分组(组内按权重降序, 整合度高的排前面)
+TERM_LIST.forEach(t=>{ const c=t.category||'其他'; (CAT_GROUPS[c]=CAT_GROUPS[c]||[]).push(t); });
+Object.keys(CAT_GROUPS).forEach(k=>CAT_GROUPS[k].sort((a,b)=>TW[b.name]-TW[a.name]));
+const CAT_KEYS=Object.keys(CAT_GROUPS).sort((a,b)=>CAT_GROUPS[b].length-CAT_GROUPS[a].length);
+let openCat={};
+function renderSide(){
+  const s=document.getElementById('side');
+  let h='<div class="nav"><h3>导航</h3>';
+  h+='<a data-go="overview" class="'+(CUR.view==='overview'?'on':'')+'">🏠 概览</a>';
+  h+='<a data-go="plot" class="'+(CUR.view==='plot'?'on':'')+'">🎬 剧情推理</a>';
+  h+='<a data-go="style" class="'+(CUR.view==='style'?'on':'')+'">✍️ 文风分析</a></div>';
+
+  h+='<h3>人物 ('+CHAR_LIST.length+') <span class="muted" style="font-weight:400">· 按整合度</span></h3><div class="grp open"><div class="items" id="sl-char">';
+  CHAR_LIST.slice(0,60).forEach(c=>{
+    h+='<a data-go="char" data-name="'+esc(c.name)+'" class="'+(CUR.view==='char'&&CUR.name===c.name?'on':'')+'" title="'+esc(c.identity||'')+'">'+lvlDot(c._w)+esc(c.name)+'</a>';
+  });
+  if(CHAR_LIST.length>60) h+='<div class="more" data-more="char">… 查看全部 '+CHAR_LIST.length+' 位</div>';
+  h+='</div></div>';
+
+  h+='<h3>设定 <span class="muted" style="font-weight:400">· 按整合度</span></h3>';
+  h+='<div style="padding:2px 14px 8px;display:flex;gap:5px">';
+  [['本书设定',false],['含通用',true]].forEach(x=>{
+    h+='<span class="tag" data-generic="'+x[1]+'" style="'+((showGeneric===x[1])?'background:#3366cc;color:#fff':'')+';font-size:11.5px;padding:1px 9px">'+x[0]+'</span>';
+  });
+  h+='<span class="muted" style="font-size:11px;align-self:center">通用 '+GENERIC_COUNT+'</span></div>';
+  CAT_KEYS.forEach(k=>{
+    const op=openCat[k];
+    // 通用词过滤: 仅本书设定模式下直接不显示 generic 词条
+    const all=showGeneric?CAT_GROUPS[k]:CAT_GROUPS[k].filter(t=>!GENERIC_INFO[t.name]);
+    if(!all.length){ return; }
+    const main=all.filter(t=>lvlOf(TW[t.name])!=='C');
+    const rest=all.length-main.length;
+    const hidden=CAT_GROUPS[k].length-all.length;
+    h+='<div class="grp'+(op?' open':'')+'"><div class="gh" data-cat="'+esc(k)+'"><span>'+esc(k)+'</span><span>'+all.length+(hidden?'<span style="opacity:.5">/'+CAT_GROUPS[k].length+'</span>':'')+'</span></div><div class="items">';
+    main.slice(0,40).forEach(t=>{
+      const g=GENERIC_INFO[t.name];
+      const eph=isEphemeral(t);
+      h+='<a data-go="term" data-name="'+esc(t.name)+'" class="'+(CUR.view==='term'&&CUR.name===t.name?'on':'')+(eph?' eph':'')+'" style="'+(g?'opacity:.45':'')+'" title="'+esc((t.definition||'').slice(0,50))+(eph?' (短期设定)':'')+'">'+(g?'<span class="lvl-dot" style="background:#e8d9a8"></span>':lvlDot(TW[t.name]))+esc(t.name)+(eph?' <span style="font-size:10px;color:#a2a9b1">⏳</span>':'')+'</a>';
+    });
+    if(main.length>40) h+='<div class="more" data-catmore="'+esc(k)+'">… +'+(main.length-40)+'</div>';
+    if(rest>0) h+='<div class="more" data-showc="'+esc(k)+'">▸ '+rest+' 个次要词条 (C 级)</div>';
+    if(openCat[k+'-c']){
+      all.filter(t=>lvlOf(TW[t.name])==='C').slice(0,60).forEach(t=>{
+        const g=GENERIC_INFO[t.name];
+        h+='<a data-go="term" data-name="'+esc(t.name)+'" class="'+(CUR.view==='term'&&CUR.name===t.name?'on':'')+'" style="opacity:.6" title="'+esc((t.definition||'').slice(0,50))+'">'+esc(t.name)+'</a>';
+      });
+    }
+    h+='</div></div>';
+  });
+  s.innerHTML=h;
+  s.querySelectorAll('.gh').forEach(g=>g.onclick=()=>{ openCat[g.dataset.cat]=!openCat[g.dataset.cat]; renderSide(); });
+  s.querySelectorAll('[data-more]').forEach(m=>m.onclick=()=>{ charLimit=9999; renderSide(); });
+  s.querySelectorAll('[data-catmore]').forEach(m=>m.onclick=()=>{ openCat[m.dataset.catmore]=true; catLimit[m.dataset.catmore]=9999; renderSide(); });
+  s.querySelectorAll('[data-showc]').forEach(m=>m.onclick=()=>{ openCat[m.dataset.showc+'-c']=!openCat[m.dataset.showc+'-c']; renderSide(); });
+  s.querySelectorAll('[data-generic]').forEach(b=>b.onclick=()=>{ showGeneric=(b.dataset.generic==='true'); renderSide(); });
+}
+let charLimit=60, catLimit={};
+
+/* ============ 主区渲染 ============ */
+function renderMain(){
+  const m=document.getElementById('main');
+  if(CUR.view==='char')  m.innerHTML=viewChar(CUR.name);
+  else if(CUR.view==='term') m.innerHTML=viewTerm(CUR.name);
+  else if(CUR.view==='plot') m.innerHTML=viewPlot();
+  else if(CUR.view==='style') m.innerHTML=viewStyle();
+  else m.innerHTML=viewOverview();
+  // 图谱绘制单独容错: 失败时保留正文内容, 只提示图谱不可用
+  try{
+    if(CUR.view==='term') drawMiniGraph(CUR.name);
+    if(CUR.view==='plot'){ try{ renderCanvas(); }catch(err){ console.error('renderCanvas',err); } }
+    if(CUR.view==='overview'||CUR.view==='term') drawSettingGraph(CUR.view==='term'?CUR.name:'');
+  }catch(err){
+    console.error('graph',err);
+    const s=document.getElementById('sgSvg')||document.getElementById('clueSvg');
+    if(s) s.innerHTML='';
+  }
+  bindTip();
+}
+
+/* ---------- 概览 ---------- */
+function viewOverview(){
+  const layers=(SETTINGS&&SETTINGS.layers)||[];
+  const links=(SETTINGS&&SETTINGS.core_links)||[];
+  const conflicts=(SETTINGS&&SETTINGS.conflicts)||[];
+  let h=crumb('概览')+
+    '<h1 class="art">'+esc(NOVEL)+'</h1>'+
+    '<div class="subtitle">AI 拆书知识库 · 从原文自动抽取的人物、设定、剧情线索与文风分析</div>'+
+    '<div class="statgrid">'+
+      st('人物简历',CHAR_LIST.length)+st('设定词条(专有)',TERM_LIST.length-GENERIC_COUNT)+st('通用名词',GENERIC_COUNT)+
+      st('设定关系',(SG.relations||[]).length)+
+      st('推理结论',(CLUE.conclusions||[]).length)+
+      st('暗线证据',(CLUE.evidence||[]).length)+
+      st('设定层级',layers.length)+
+    '</div>';
+  if(SETTINGS&&SETTINGS.summary){
+    h+='<div class="sec"><h2>世界概览</h2><p class="lead">'+wl(SETTINGS.summary)+'</p></div>';
+  }
+  // 高整合度词条榜: 整合度(暗线+场景+关系+结论引用)最高的词条优先呈现
+  const topTerms=TERM_LIST.slice().sort((a,b)=>TW[b.name]-TW[a.name]).slice(0,15);
+  if(topTerms.length){
+    h+='<div class="sec"><h2>核心词条榜'+SRC.S+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">按整合度权重排序 = 暗线命中 + 场景覆盖 + 关系度 + 结论引用</div><div class="card ok"><div>';
+    topTerms.forEach((t,i)=>{
+      h+='<span class="tag" data-go="term" data-name="'+esc(t.name)+'" style="font-size:13px;padding:3px 10px">'+
+        '<b style="color:#8a6d1a">'+(i+1)+'.</b> '+lvlBadge(TW[t.name])+esc(t.name)+' <span class="muted">'+fmtW(TW[t.name])+'</span></span>';
+    });
+    h+='</div></div></div>';
+  }
+  if(layers.length){
+    h+='<div class="sec"><h2>设定体系</h2>';
+    layers.forEach(l=>{
+      h+='<div class="card info"><div class="hd"><span class="badge" style="background:#3366cc">'+esc(l.name||'层')+'</span>'+
+        '<span class="muted" style="margin-left:auto">'+(l.terms||[]).length+' 个设定</span></div>'+
+        '<div class="bd">'+esc(l.summary||'')+'</div><div style="margin-top:7px">'+
+        (l.terms||[]).map(t=>{
+          const tg=TERMS[t];
+          return tg?'<span class="tag" data-go="term" data-name="'+esc(tg.name)+'">'+esc(tg.name)+'</span>'
+                   :'<span class="tag" style="cursor:default;opacity:.55">'+esc(t)+'</span>';
+        }).join('')+'</div></div>';
+    });
+    h+='</div>';
+  }
+  if(WNSUG.length){
+    h+='<div class="sec"><h2>体系补档建议'+SRC.S+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">公版体系图中, 本书已抽到的等级之间存在缺档, 可在原文中确认是否被漏抽</div>';
+    WNSUG.forEach(s=>{
+      h+='<div class="card warn"><div class="hd"><span class="badge" style="background:#8a6d1a">'+esc(s.domain)+'</span>'+
+        '<span class="muted">已有 '+esc(s.span[0])+' … '+esc(s.span[1])+'</span></div>'+
+        '<div class="bd muted">已抽到：'+esc(s.have.join('、'))+'</div>'+
+        '<div style="margin-top:6px"><b>疑似缺档：</b>'+
+        s.missing.map(m=>'<span class="tag" style="background:#fff4d6;color:#72591f;border-color:#f1d87a;cursor:default">'+esc(m)+'</span>').join('')+
+        '</div></div>';
+    });
+    h+='</div>';
+  }
+  if(links.length){
+    h+='<div class="sec"><h2>主干关联</h2><div class="card ok"><ul class="tight">'+
+      links.map(l=>'<li><b>'+wl(l.from||'')+'</b> → <b>'+wl(l.to||'')+'</b>：'+esc(l.relation||'')+'</li>').join('')+
+      '</ul></div></div>';
+  }
+  if(conflicts.length){
+    h+='<div class="sec"><h2>设定矛盾</h2><div class="card danger"><ul class="tight">'+
+      conflicts.map(c=>'<li><b>'+esc(c.a||'')+' vs '+esc(c.b||'')+'</b>：'+esc(c.conflict||'')+'</li>').join('')+
+      '</ul></div></div>';
+  }
+  h+='<div class="sec"><h2>设定关系图谱</h2>'+
+    '<div class="muted" style="margin-bottom:6px">展示关联度最高的 '+Math.min(70,TERM_LIST.length)+' 个词条，点击节点查看释义，悬停高亮关联。</div>'+
+    '<div class="graphbox"><div class="gb-h"><span>🕸 设定图谱</span>'+
+    '<select id="sgCat"><option value="">全部分类</option>'+CAT_KEYS.map(k=>'<option value="'+esc(k)+'">'+esc(k)+' ('+CAT_GROUPS[k].length+')</option>').join('')+'</select>'+
+    '<span class="legend" id="sgLegend"></span></div>'+
+    '<svg class="graph" id="sgSvg"></svg></div></div>';
+  return h+reviewCard('概览');
+}
+function st(k,v){return '<div class="stat"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div></div>';}
+
+/* 词云点击 → 命中实体直接跳转, 否则填搜索框 */
+function searchW(w){
+  const hit=IDX.find(x=>x.n===w);
+  if(hit){ go(hit.t,hit.n); return; }
+  const q=document.getElementById('q');
+  if(q){ q.value=w; q.dispatchEvent(new Event('input')); }
+}
+/* 📝 编辑评述卡(板块末尾, 专业编辑/读者视角) */
+function reviewCard(block){
+  const rv=REVIEWS[block];
+  if(!rv||!rv.summary) return '';
+  return '<div class="sec"><h2>📝 编辑评述<small style="font-weight:400;color:#72777d;font-size:12px"> · 专业编辑/读者视角</small>'+SRC.L+'</h2>'+
+    '<div class="card" style="border-left:4px solid #FF7A45;padding:12px 14px">'+
+    '<div class="review-row"><span class="badge" style="background:#FF7A45;color:#fff">写作习惯</span> <span>'+esc(rv.habits||'')+'</span></div>'+
+    '<div class="review-row"><span class="badge" style="background:#12B5C4;color:#fff">擅长</span> <span>'+esc(rv.strengths||'')+'</span></div>'+
+    '<div class="review-row"><span class="badge" style="background:#8a6d1a;color:#fff">可改进</span> <span>'+esc(rv.weaknesses||'未见明显短板')+'</span></div>'+
+    '<div class="review-sum" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e8d9a8;color:#202122;font-size:13.5px;line-height:1.7">'+esc(rv.summary)+'</div>'+
+    '</div></div>';
+}
+/* 文风子标签: 平滑滚动到对应 section + 高亮 */
+function secJump(id,el){
+  const sec=document.getElementById(id);
+  if(sec) sec.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.style-chip').forEach(c=>c.classList.remove('on'));
+  if(el) el.classList.add('on');
+}
+function crumb(a,b){
+  return '<div class="crumb"><a data-go="overview">'+esc(NOVEL)+'</a>'+
+    (a?'<span class="sep">›</span>'+esc(a):'')+
+    (b?'<span class="sep">›</span><b>'+esc(b)+'</b>':'');
+}
+
+/* ---------- 人物简历页 ---------- */
+function viewChar(name){
+  const r=CHARS[name];
+  if(!r) return crumb('人物')+'<div class="muted">未找到该人物。</div>';
+  const facts=CF[name]||CF[canon(name)]||{};
+  const apps=r.appearances||facts.appearances||[];
+  const chs={}; apps.forEach(a=>{ const c=a[0]; chs[c]=(chs[c]||0)+1; });
+  const chKeys=Object.keys(chs).map(Number).sort((a,b)=>a-b);
+  const first=chKeys[0]||'?', last=chKeys[chKeys.length-1]||'?';
+  const dims=PERSONALITY[name]||{};
+  const alias=(EREG[name]||{}).aliases||[];
+  const rels=r.relations||[];
+  const co=facts.co_occurrences||{};
+  const coTop=Object.keys(co).sort((a,b)=>co[b]-co[a]).slice(0,12);
+  const say=(facts.sayings||[]).slice(0,8);
+  const doings=(facts.doings||[]).slice(0,6);
+
+  // Infobox
+  let ib='<div class="infobox"><div class="ib-h">'+esc(name)+
+    '<div class="sub">'+esc(r.identity||'身份未明示')+'</div></div>'+
+    '<div class="ib-av"><span class="ini">'+esc(name.slice(0,1))+'</span></div>'+
+    '<div class="ib-src">'+SRC.M+' 本页字段均来自 stage1 JSON, 未由面板生成</div>'+
+    '<table>';
+  ib+=row('权重',lvlBadge(r._w)+SRC.S+fmtW(r._w)+' 分');
+  if(alias.length) ib+=row('别名',SRC.R+alias.map(esc).join('、'));
+  ib+=row('首次出现',SRC.S+'第 '+first+' 章');
+  ib+=row('最后出现',SRC.S+'第 '+last+' 章');
+  ib+=row('出场场景',SRC.S+apps.length+' 次 / '+chKeys.length+' 章');
+  if(r.personality) ib+=row('性格',SRC.L+esc(r.personality));
+  if(rels.length) ib+=row('关联人物',SRC.L+rels.slice(0,6).map(x=>{
+      return CHARS[x.name]?'<a class="wl" data-t="char" data-n="'+esc(x.name)+'">'+esc(x.name)+'</a>':esc(x.name);
+    }).join('、'));
+  ib+='</table>';
+  if(dims&&Object.keys(dims).length){
+    ib+='<div class="ib-note">性格六维（LLM）: '+Object.keys(dims).map(k=>esc(k)+' '+dims[k]).join(' · ')+'</div>';
+  }
+  ib+='</div>';
+
+  let h=crumb('人物',name)+'<h1 class="art">'+esc(name)+'<span class="cat-badge">人物</span></h1>';
+  h+='<div class="subtitle">'+(r.identity?esc(r.identity):'该角色的身份尚未在原文中明示')+'</div>';
+  h+=ib;
+  h+='<div class="lead">'+wl(r.trajectory||'')+'</div>';
+
+  // 出场时间线
+  if(chKeys.length){
+    const mx=Math.max.apply(null,chKeys.map(c=>chs[c]).concat([1]));
+    h+='<div class="sec"><h2>出场分布'+SRC.S+'</h2><div class="tl">';
+    chKeys.forEach(c=>{
+      const pct=Math.max(8,Math.round(chs[c]/mx*100));
+      h+='<div class="b" style="height:'+pct+'%" title="第'+c+'章 · '+chs[c]+' 个场景"></div>';
+    });
+    h+='</div><div class="tl-x"><span>第 '+chKeys[0]+' 章</span><span>共 '+chKeys.length+' 章 / '+apps.length+' 场景</span><span>第 '+chKeys[chKeys.length-1]+' 章</span></div></div>';
+  }
+  // 履历
+  h+='<div class="sec"><h2>人物履历'+SRC.L+'</h2>'+
+    '<div class="muted" style="margin-bottom:8px">本段由 LLM 基于角色出场、语录、行为等事实归纳，存在推断偏差可能。</div>'+
+    '<p>'+wl(r.trajectory||'（暂无轨迹描述）')+'</p>';
+  if(r.personality) h+='<h3>性格特质'+SRC.L+'</h3><p>'+esc(r.personality)+'</p>';
+  h+='</div>';
+  // 语录
+  if(say.length){
+    h+='<div class="sec"><h2>经典台词'+SRC.R+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">逐字抽取自原文对话</div>';
+    say.forEach(s=>{
+      const i=s.indexOf(': ');
+      const loc=i>0?s.slice(0,i):'', txt=i>0?s.slice(i+2):s;
+      h+='<div class="quote">「'+esc(txt)+'」'+(loc?'<span class="src">— '+esc(loc)+'</span>':'')+'</div>';
+    });
+    h+='</div>';
+  } else {
+    h+='<div class="sec"><h2>经典台词'+SRC.R+'</h2><div class="muted">该角色在原文中暂无直接台词抽取记录（可能为路人角色或旁白视角）。</div></div>';
+  }
+  // 行为
+  if(doings.length){
+    h+='<div class="sec"><h2>行为描写'+SRC.R+'</h2><div class="muted" style="margin-bottom:8px">逐字抽取自原文动作/神态描写</div><ul class="tight">'+
+      doings.map(d=>'<li>'+esc(d)+'</li>').join('')+'</ul></div>';
+  }
+  // 关系
+  if(rels.length||coTop.length){
+    h+='<div class="sec"><h2>人物关系'+SRC.M+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">叙事关联为 LLM 推断；场景共现来自统计</div>';
+    if(rels.length){
+      h+='<h3>叙事关联'+SRC.L+'</h3><ul class="tight">'+rels.map(x=>{
+        const link=CHARS[x.name]?'<a class="wl" data-t="char" data-n="'+esc(x.name)+'">'+esc(x.name)+'</a>':esc(x.name);
+        return '<li><b>'+link+'</b> — '+esc(x.relation||'')+'</li>';
+      }).join('')+'</ul>';
+    }
+    if(coTop.length){
+      h+='<h3>场景共现'+SRC.S+'</h3><div>'+coTop.map(n=>{
+        const link=CHARS[n]?'<span class="tag rel" data-go="char" data-name="'+esc(n)+'">'+esc(n)+' ×'+co[n]+'</span>':
+                             '<span class="tag rel" style="cursor:default">'+esc(n)+' ×'+co[n]+'</span>';
+        return link;
+      }).join('')+'</div>';
+    }
+    h+='</div>';
+  }
+  // 疑点
+  if((r.doubts||[]).length){
+    h+='<div class="sec"><h2>暗线疑点'+SRC.L+'</h2><div class="muted" style="margin-bottom:8px">由 LLM 基于角色行为/关系推断，需人工复核</div><div class="card warn"><ul class="tight">'+
+      r.doubts.map(d=>'<li>'+wl(d)+'</li>').join('')+'</ul></div></div>';
+  }
+  return h+reviewCard('人物');
+}
+function row(k,v){return '<tr><th>'+esc(k)+'</th><td>'+v+'</td></tr>';}
+
+/* ---------- 设定词条页 ---------- */
+function viewTerm(name){
+  const t=TERMS[name];
+  if(!t) return crumb('设定')+'<div class="muted">未找到该设定。</div>';
+
+  // 合并两类关系: SG.relations(关系聚合) + terms[].related(LLM 显式关联)
+  const rSet={};  // key = other|type
+  (SG.relations||[]).filter(r=>r.from===name||r.to===name).forEach(r=>{
+    const out=r.from===name, other=out?r.to:r.from;
+    const key=other+'|'+(r.type||'关联');
+    rSet[key]={other:other,type:r.type||'关联',how:r.how,scene:r.scene,src:'rel'};
+  });
+  (t.related||[]).forEach(rr=>{
+    const key=rr.to+'|'+(rr.type||'关联');
+    if(!rSet[key]) rSet[key]={other:rr.to,type:rr.type||'关联',how:rr.how,scene:null,src:'related'};
+  });
+  const rels=Object.values(rSet);
+  const alias=t.aliases||[];
+  const defs=(t.definition||'').split('；').filter(x=>x.trim());
+
+  let ib='<div class="infobox ib-wide"><div class="ib-h">'+esc(name)+
+    '<div class="sub">'+esc(t.category||'设定')+'</div></div>'+
+    '<div class="ib-av"><svg class="mini-graph" id="miniSvg"></svg></div>'+
+    '<div class="ib-src">'+SRC.R+' 释义/场景为原文抽取；'+SRC.M+' 关系可来自原文与 LLM</div>'+
+    '<table>';
+  if(GENERIC_INFO[name]){
+    ib+='<div class="ib-src" style="background:#fffbeb;border-bottom:1px solid #f1d87a;color:#72591f">⚠ 通用名词：该词放在其他小说中同样成立，疑为抽取阶段未过滤的通用概念，非本书专有设定。</div>';
+  }
+    if(WN[name]){
+    const w=WN[name];
+    const slotName={power_levels:'力量等级',concepts:'核心概念',orgs:'组织',items:'物品',roles:'身份/角色'}[w.slot]||w.slot;
+    ib+=row('网文体系','<span class="cat-badge" style="background:#e2f0ff;color:#1c5da8">'+esc(w.domain)+'</span> '+
+      slotName+(w.rank?' · 第'+w.rank+'档':'')+' '+SRC.S);
+  }
+  ib+=row('覆盖范围',SRC.S+esc(spanText(t)));
+  ib+=row('权重',lvlBadge(TW[name])+SRC.S+fmtW(TW[name])+' 分 · 全站第 '+TRANK[name]+' 位');
+  if(alias.length) ib+=row('别名',SRC.R+alias.map(esc).join('、'));
+  ib+=row('分类',SRC.S+esc(t.category||'—'));
+  if(t.first_seen) ib+=row('首次出现',SRC.R+'第 '+t.first_seen+' 章');
+  if((t.source_scenes||[]).length) ib+=row('涉及场景',SRC.R+(t.source_scenes||[]).length+' 个');
+  ib+=row('关联词条',SRC.M+rels.length+' 条');
+  ib+='</table></div>';
+
+  let h=crumb('设定',name)+'<h1 class="art">'+esc(name)+'<span class="cat-badge">'+esc(t.category||'设定')+'</span></h1>';
+  h+='<div class="subtitle">'+esc(t.category||'')+' · 首次出现于第 '+(t.first_seen||'?')+' 章</div>';
+  h+=ib;
+  if(isEphemeral(t)){
+    h+='<div class="eph-note">⏳ <b>短期设定</b>：'+esc(spanText(t))+
+       '，通常是一次性道具/临时场景，非贯穿全书的核心设定（展示已弱化）。</div>';
+  }
+  h+='<div class="lead">'+SRC.R+wl(t.definition||'（暂无释义）')+'</div>';
+  if(defs.length>1){
+    h+='<div class="sec"><h2>释义溯源'+SRC.R+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">以下释义按「；」从 definition 字段切分，来自不同场景的原文抽取</div><ul class="tight">'+
+      defs.map(d=>'<li>'+esc(d.trim())+'</li>').join('')+'</ul></div>';
+  }
+  if(rels.length){
+    h+='<div class="sec"><h2>关联关系 ('+rels.length+')'+SRC.M+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">「原文」来自 <code>relations</code>；「LLM」来自 <code>terms[].related</code> 显式关联</div>'+
+      '<div class="card info"><ul class="tight">'+
+      rels.map(r=>{
+        const link=TERMS[r.other]?'<a class="wl" data-t="term" data-n="'+esc(r.other)+'">'+esc(r.other)+'</a>':esc(r.other);
+        const srcBadge=r.src==='related'?SRC.L:SRC.R;
+        return '<li><b>'+link+'</b> '+srcBadge+' <span class="cat-badge">'+esc(r.type||'关联')+'</span> '+esc(r.how||'')+(r.scene?'<span class="muted"> · 第'+r.scene+'章</span>':'')+'</li>';
+      }).join('')+'</ul></div></div>';
+  }
+  // 同分类词条(按权重降序)
+  const same=(CAT_GROUPS[t.category||'其他']||[]).filter(x=>x.name!==name).slice(0,24);
+  if(same.length){
+    h+='<div class="sec"><h2>同类设定'+SRC.S+'</h2><div>'+
+      same.map(x=>'<span class="tag" data-go="term" data-name="'+esc(x.name)+'">'+lvlBadge(TW[x.name])+esc(x.name)+'</span>').join('')+
+      '</div></div>';
+  }
+  return h+reviewCard('设定');
+}
+
+/* ---------- 剧情推理 ---------- */
+let plotFilter='全部';
+function viewPlot(){
+  const concls=CLUE.conclusions||[], clusters=CLUE.clusters||[], evs=CLUE.evidence||[];
+  let h=crumb('剧情推理')+'<h1 class="art">叙事拉片画布<span class="cat-badge" style="background:#e2f0ff;color:#1c5da8">拉片</span></h1>'+
+    '<div class="subtitle">成片拉片：场景分镜流 × 暗线逻辑 × 伏笔-回收链 —— 拖拽平移 / 滚轮缩放 / 双击复位</div>'+
+    '<div class="statgrid">'+st('场景分镜',SCENES_META.length)+st('推理结论',concls.length)+
+    st('证据簇',clusters.length)+st('伏笔-回收链',FORESHADOW.length)+'</div>';
+  h+='<div class="canvas-tb">'
+    +'<button class="cbtn" onclick="canvasZoom(1.15)">＋</button>'
+    +'<button class="cbtn" onclick="canvasZoom(1/1.15)">－</button>'
+    +'<button class="cbtn" onclick="canvasReset()">⟳ 复位</button>'
+    +'<span class="tag" style="cursor:pointer;'+(plotDense==='rep'?'background:#3366cc;color:#fff':'')+'" onclick="setDense(\'rep\')">代表场景</span>'
+    +'<span class="tag" style="cursor:pointer;'+(plotDense==='all'?'background:#3366cc;color:#fff':'')+'" onclick="setDense(\'all\')">全部场景</span>'
+    +'<input id="plotChFrom" type="number" placeholder="章起" style="width:58px;padding:3px 6px;border:1px solid #c8ccd1;border-radius:4px">'
+    +'<span class="muted">—</span>'
+    +'<input id="plotChTo" type="number" placeholder="章止" style="width:58px;padding:3px 6px;border:1px solid #c8ccd1;border-radius:4px">'
+    +'<button class="cbtn" onclick="plotChapterFilter()">筛选</button>'
+    +'<button class="cbtn" onclick="plotChapterFilter(1)">清除</button>'
+    +'</div>';
+  h+='<div class="canvas-wrap" id="canvasWrap"><div class="canvas-stage" id="canvasStage"></div></div>';
+  if(FORESHADOW.length){
+    h+='<div class="sec" style="margin-top:16px"><h2>伏笔-回收链（同簇证据跨章 ≥5 章）'+SRC.G+'</h2>'+
+      '<div class="muted" style="margin-bottom:8px">同一推理簇的证据在全书分布 = 伏笔埋设到回收的跨度</div>'+
+      '<table class="tbl"><tr><th>推理簇</th><th>埋设 → 回收</th><th>跨度</th><th>证据数</th><th>权重</th></tr>';
+    FORESHADOW.slice(0,12).forEach(f=>{
+      h+='<tr style="cursor:pointer" title="在画布中定位此伏笔区间" onclick="jumpForeshadow('+f.span[0]+','+f.span[1]+')"><td><b>'+esc(f.cluster_id)+'</b></td><td>第 '+f.span[0]+' 章 → 第 '+f.span[1]+' 章</td><td>'+(f.span[1]-f.span[0])+' 章</td><td>'+f.n_ev+'</td><td>'+f.weight+'</td></tr>';
+    });
+    h+='</table></div>';
+  }
+  return h+reviewCard('剧情');
+}
+/* ============ 拉片画布 ============ */
+let plotDense='rep';          // rep=每章代表场景 | all=全部
+let plotChRange=null;         // [from,to] 章节筛选
+let canvasState={x:28,y:14,s:1};
+function pickScenes(){
+  let scenes=SCENES_META;
+  if(plotChRange){ scenes=scenes.filter(s=>s.chapter_no>=plotChRange[0]&&s.chapter_no<=plotChRange[1]); }
+  if(plotDense==='all') return scenes;
+  const byCh={};
+  scenes.forEach(s=>{ (byCh[s.chapter_no]=byCh[s.chapter_no]||[]).push(s); });
+  const conclCh=new Set((CLUE.conclusions||[]).map(c=>Number(c.chapter_no)));
+  const out=[];
+  Object.keys(byCh).sort((a,b)=>+a-+b).forEach(ch=>{
+    const arr=byCh[ch].slice().sort((a,b)=>(b.n_ev||0)-(a.n_ev||0));
+    let picked=arr.filter(s=>conclCh.has(+ch)).slice(0,2);
+    arr.forEach(s=>{ if(picked.length<3 && !picked.includes(s)) picked.push(s); });
+    if(picked.length<3 && arr.length>2){
+      const sorted=arr.slice().sort((a,b)=>Math.abs(b.sentiment||0)-Math.abs(a.sentiment||0));
+      if(!picked.includes(sorted[0])) picked.push(sorted[0]);
+    }
+    picked.slice(0,3).forEach(s=>out.push(s));
+  });
+  return out;
+}
+function renderCanvas(){
+  const stage=document.getElementById('canvasStage'); if(!stage) return;
+  const scenes=pickScenes();
+  const CARD_W=232,GAP=14,CARD_H=150;
+  const conclByCh={};
+  (CLUE.conclusions||[]).forEach(c=>{ const k=Number(c.chapter_no); (conclByCh[k]=conclByCh[k]||[]).push(c); });
+  let x=0, html='';
+  scenes.forEach(s=>{
+    const emo=s.sentiment||0;
+    const bar=emo>=0.15?'#12B5C4':(emo<=-0.15?'#FF7A45':'#c8ccd1');
+    const who=(s.who||[]).map(w=>w.name||w).slice(0,3).join('、');
+    const key=String(s.raw_text||'').replace(/\s+/g,' ').slice(0,46);
+    const ann=SCENE_ANNOT.find(a=>String(a.scene_id)===String(s.scene_id));
+    html+='<div class="shot-card" style="left:'+x+'px;top:8px;border-top:3px solid '+bar+'" data-sid="'+esc(String(s.scene_id))+'">'
+      +(ann?'<span class="badge" style="background:#8e44ad;color:#fff;float:right;cursor:help" title="'+esc(ann.note||'')+'">🎬 '+esc(ann.plot_function||'')+'</span>':'')
+      +'<div class="sc-hd"><span class="cat-badge" style="background:#eef2f5;color:#54595d">第'+s.chapter_no+'章·s'+s.scene_id+'</span>'
+      +(s.n_ev?'<span class="badge" style="background:#0A7E8C;color:#fff;float:right">🕸'+s.n_ev+'</span>':'')+'</div>'
+      +'<div class="sc-where">📍 '+esc(s.where||'?')+'</div>'
+      +'<div class="sc-who">'+esc(who||'—')+'</div>'
+      +'<div class="sc-key">'+esc(key)+'</div></div>';
+    (conclByCh[s.chapter_no]||[]).slice(0,1).forEach(c=>{
+      html+='<div class="concl-card" style="left:'+x+'px;top:'+(CARD_H+24)+'px" data-cid="'+esc(c.id)+'">'
+        +'<div class="sc-hd"><span class="badge" style="background:#d33">推理</span> 第'+c.chapter_no+'章</div>'
+        +'<div class="sc-key" style="font-weight:600">'+esc(String(c.fact||'').slice(0,64))+'</div></div>';
+    });
+    x+=CARD_W+GAP;
+  });
+  stage.innerHTML=html;
+  stage.style.width=Math.max((x+60)+'px','100%');
+  applyCanvas();
+  bindCanvas();
+}
+function applyCanvas(){
+  const s=document.getElementById('canvasStage');
+  if(s) s.style.transform='translate('+canvasState.x+'px,'+canvasState.y+'px) scale('+canvasState.s+')';
+}
+function canvasZoom(f){
+  const ns=Math.min(2.2,Math.max(0.25,canvasState.s*f));
+  const w=document.getElementById('canvasWrap');
+  if(w){ const r=w.getBoundingClientRect(), px=r.width/2, py=r.height/2;
+    canvasState.x=px-(px-canvasState.x)*(ns/canvasState.s);
+    canvasState.y=py-(py-canvasState.y)*(ns/canvasState.s); }
+  canvasState.s=ns; applyCanvas();
+}
+function canvasReset(){ canvasState={x:28,y:14,s:1}; applyCanvas(); }
+function setDense(mode){
+  plotDense=mode;
+  document.querySelectorAll('.canvas-tb .tag').forEach(t=>{ t.style.background=''; t.style.color=''; });
+  if(mode==='rep'){ const el=[...document.querySelectorAll('.canvas-tb .tag')].find(t=>t.textContent==='代表场景'); if(el){el.style.background='#3366cc';el.style.color='#fff';} }
+  else{ const el=[...document.querySelectorAll('.canvas-tb .tag')].find(t=>t.textContent==='全部场景'); if(el){el.style.background='#3366cc';el.style.color='#fff';} }
+  renderCanvas();
+}
+function plotChapterFilter(clear){
+  if(clear){ plotChRange=null; renderCanvas(); return; }
+  const f=+(document.getElementById('plotChFrom').value||0);
+  const t=+(document.getElementById('plotChTo').value||99999);
+  plotChRange=[f||1,t];
+  renderCanvas();
+}
+/* 伏笔链 → 画布定位 */
+function jumpForeshadow(f,t){
+  plotChRange=[f,t];
+  plotDense='all';
+  go('plot');
+  setTimeout(()=>{ const w=document.getElementById('canvasWrap'); if(w) w.scrollIntoView({behavior:'smooth'}); },400);
+}
+/* 场景卡弹层 */
+function shotDetail(el){
+  const sid=el.dataset.sid, s=SCENES_META.find(x=>String(x.scene_id)===sid);
+  if(!s) return;
+  const evs=(CLUE.evidence||[]).filter(e=>String(e.scene_id)===sid);
+  const ann=SCENE_ANNOT.find(a=>String(a.scene_id)===sid);
+  let hh='<h2 style="margin-bottom:6px">第'+s.chapter_no+'章 · 场景 s'+s.scene_id+'</h2>'
+    +(ann?'<div class="card warn" style="margin-bottom:8px;padding:8px 10px"><b>🎬 创作解析</b> <span class="cat-badge" style="background:#8e44ad;color:#fff">'+esc(ann.plot_function||'')+'</span><div style="margin-top:4px">'+esc(ann.note||'')+'</div></div>':'')
+    +'<div class="muted" style="margin-bottom:8px">📍 '+esc(s.where||'?')+'</div>'
+    +'<div style="margin-bottom:8px">'+(s.who||[]).map(w=>'<span class="tag" style="cursor:default">'+esc(w.name||w)+'</span>').join('')+'</div>'
+    +'<div class="quote">'+esc(s.raw_text||'（原文未收录）')+'</div>';
+  if(evs.length){
+    hh+='<h3 style="margin:12px 0 6px">本场景产出的暗线证据（'+evs.length+'）</h3>';
+    evs.slice(0,6).forEach(e=>{
+      hh+='<div class="quote" style="margin-bottom:4px">'+esc(String(e.text||'').slice(0,120))+
+        (e.confidence!=null?'<span class="src">置信 '+e.confidence+'</span>':'')+'</div>';
+    });
+  }
+  showModal(hh);
+}
+/* 推理结论弹层 */
+function conclDetail(el){
+  const cid=el.dataset.cid, c=(CLUE.conclusions||[]).find(x=>x.id===cid);
+  if(!c) return;
+  const cl=CL_MAP[c.cluster_id]||{};
+  const ids=c.evidence_ids||cl.member_ids||[];
+  const evs=ids.map(id=>EV_MAP[id]).filter(Boolean);
+  let hh='<h2 style="margin-bottom:6px">推理结论 '+esc(c.id)+' <span class="muted" style="font-size:13px">第'+(c.chapter_no||'?')+'章前后</span></h2>'
+    +'<div class="card danger" style="padding:10px"><div style="font-weight:600">'+wl(c.fact)+'</div>'
+    +(c.reason?'<div class="muted" style="margin-top:6px">异常点：'+wl(c.reason)+'</div>':'')
+    +(c.hypothesis?'<div style="margin-top:6px">推断：'+wl(c.hypothesis)+'</div>':'')
+    +(c.chain?'<div class="chain" style="margin-top:8px"><b>推理链 (CoT)</b><br>'+esc(c.chain)+'</div>':'')
+    +'</div>';
+  if(evs.length){
+    hh+='<h3 style="margin:12px 0 6px">证据簇 '+esc(cl.id||c.cluster_id)+'（'+evs.length+' 条）</h3>';
+    evs.slice(0,8).forEach(e=>{
+      hh+='<div class="quote" style="margin-bottom:4px">'+esc(String(e.text||'').slice(0,130))+
+        '<span class="src">— 第'+(e.chapter_no||'?')+'章 scene'+(e.scene_id||'?')+'</span></div>';
+    });
+  }
+  showModal(hh);
+}
+/* 简易弹层 */
+function showModal(html){
+  const m=document.createElement('div');
+  m.className='modal-mask';
+  m.innerHTML='<div class="modal-box" onclick="event.stopPropagation()">'
+    +'<button class="cbtn" style="float:right" onclick="this.closest(\'.modal-mask\').remove()">✕</button>'
+    +html+'</div>';
+  m.onclick=()=>m.remove();
+  document.body.appendChild(m);
+}
+/* 画布交互: 拖拽/缩放/触屏 */
+let canvasDrag=null;
+function bindCanvas(){
+  const w=document.getElementById('canvasWrap'); if(!w||w.dataset.bound) return;
+  w.dataset.bound='1';
+  w.style.cursor='grab';
+  w.onwheel=e=>{
+    e.preventDefault();
+    const r=w.getBoundingClientRect(), px=e.clientX-r.left, py=e.clientY-r.top;
+    const f=e.deltaY<0?1.1:1/1.1;
+    const ns=Math.min(2.2,Math.max(0.25,canvasState.s*f));
+    canvasState.x=px-(px-canvasState.x)*(ns/canvasState.s);
+    canvasState.y=py-(py-canvasState.y)*(ns/canvasState.s);
+    canvasState.s=ns; applyCanvas();
+  };
+  w.onmousedown=e=>{ canvasDrag={x:e.clientX,y:e.clientY}; w.style.cursor='grabbing'; };
+  window.onmousemove=e=>{ if(canvasDrag){ canvasState.x+=e.clientX-canvasDrag.x; canvasState.y+=e.clientY-canvasDrag.y; canvasDrag={x:e.clientX,y:e.clientY}; applyCanvas(); } };
+  window.onmouseup=()=>{ canvasDrag=null; if(w) w.style.cursor='grab'; };
+  w.ondblclick=()=>canvasReset();
+  w.addEventListener('touchstart',e=>{ if(e.touches.length===1) canvasDrag={x:e.touches[0].clientX,y:e.touches[0].clientY}; },{passive:true});
+  w.addEventListener('touchmove',e=>{ if(canvasDrag&&e.touches.length===1){ canvasState.x+=e.touches[0].clientX-canvasDrag.x; canvasState.y+=e.touches[0].clientY-canvasDrag.y; canvasDrag={x:e.touches[0].clientX,y:e.touches[0].clientY}; applyCanvas(); } },{passive:true});
+  w.addEventListener('touchend',()=>{ canvasDrag=null; },{passive:true});
+  w.addEventListener('click',e=>{
+    const sc=e.target.closest?e.target.closest('.shot-card'):null;
+    if(sc){ shotDetail(sc); return; }
+    const cc=e.target.closest?e.target.closest('.concl-card'):null;
+    if(cc){ conclDetail(cc); }
+  });
+}
+const EV_MAP={}, CL_MAP={};
+(CLUE.evidence||[]).forEach(e=>EV_MAP[e.id]=e);
+(CLUE.clusters||[]).forEach(c=>CL_MAP[c.id]=c);
+document.addEventListener('click',e=>{
+  const t=e.target.closest?e.target.closest('[data-plotfilter]'):null;
+  if(t){ plotFilter=t.dataset.plotfilter; renderMain(); return; }
+  const c=e.target.closest?e.target.closest('.card.clk'):null;
+  if(c) c.classList.toggle('open');
+});
+
+/* ---------- 文风（四维 v2: 词/句/段/篇） ---------- */
+function viewStyle(){
+  const V2 = STYLE && (STYLE.schema === 2 || STYLE.sources);
+  let h=crumb('文风分析')+'<h1 class="art">文风分析'+
+    (V2?'<span class="cat-badge" style="background:#e2f0ff;color:#1c5da8">文学四维</span>':'')+'</h1>'+
+    '<div class="subtitle">'+(V2?'词 · 句 · 段 · 篇 组合式测量（🔵统计 / 🟢场景 / 🟣暗线 / 🟠人物 / 🟡LLM）':'基于原文随机采样的句式、节奏与修辞统计')+'</div>';
+  if(!STYLE||(V2?(!STYLE.chapter||!STYLE.sentence):!STYLE.fact)){
+    return h+'<div class="muted">未生成文风分析（运行 stage2 mine）。</div>';
+  }
+  if(V2) return h+viewStyleV2();
+  // ---- 旧版降级 ----
+  h+='<div class="statgrid">'+st('采样字数',STYLE.sampled_chars||0)+st('代表句例',(STYLE.examples||[]).length)+'</div>';
+  h+='<div class="sec"><h2>文风特征</h2><div class="card ok"><div class="bd lead">'+esc(STYLE.fact)+'</div></div></div>';
+  if((STYLE.examples||[]).length){
+    h+='<div class="sec"><h2>代表原文</h2>';
+    STYLE.examples.forEach(x=>h+='<div class="quote">「'+esc(String(x))+'」</div>');
+    h+='</div>';
+  }
+  if(STYLE.chain) h+='<div class="sec"><h2>分析思路</h2><div class="card info"><div class="bd" style="white-space:pre-wrap">'+esc(STYLE.chain)+'</div></div></div>';
+  return h;
+}
+
+/* ---- v2 四 section ---- */
+function viewStyleV2(){
+  const S=STYLE, W=S.word||{}, Sen=S.sentence||{}, P=S.para||{}, C=S.chapter||{};
+  const BL=window.__STYLE_BL__||null;
+  let h='<div class="statgrid">'
+    +st('采样字数',(S.sampled_chars||0).toLocaleString())
+    +st('总句数',(Sen.n_sent||0).toLocaleString())
+    +st('长短句比',(Sen.long_short_ratio||0)+' : 1')
+    +st('对白占比',Math.round((Sen.dialogue_pct||0)*100)+'%')
+    +'</div>';
+  h+='<div class="style-nav" id="styleNav">'
+    +'<span class="style-chip on" data-sec="sec-pt" onclick="secJump(\'sec-pt\',this)">篇 · 叙事结构</span>'
+    +'<span class="style-chip" data-sec="sec-duan" onclick="secJump(\'sec-duan\',this)">段 · 修辞手法</span>'
+    +'<span class="style-chip" data-sec="sec-ju" onclick="secJump(\'sec-ju\',this)">句 · 句式节奏</span>'
+    +'<span class="style-chip" data-sec="sec-ci" onclick="secJump(\'sec-ci\',this)">词 · 用词DNA</span>'
+    +'</div>';
+
+  /* ============ 1 篇 · 叙事结构（宏观） ============ */
+  h+='<div class="sec" id="sec-pt"><h2>篇 · 叙事结构'+SRC.M+'</h2>';
+  const arc=C.arc||[];
+  if(arc.length){
+    const W2=680,H2=170,pad=34;
+    const mx=Math.max.apply(null,arc.map(a=>Math.abs(a.sentiment)).concat([0.3]));
+    const xs=i=>pad+(W2-pad*2)*(arc.length>1?i/(arc.length-1):0.5);
+    const ys=s=>H2/2-s*(H2/2-22)/mx;
+    let path='';
+    arc.forEach((a,i)=>{path+=(i?'L':'M')+xs(i).toFixed(1)+' '+ys(a.sentiment).toFixed(1)+' ';});
+    const revs=C.reversals||[];
+    const revByCh={}; revs.forEach(r=>{revByCh[r.ch]=r;});
+    h+='<div class="card" style="padding:10px"><div class="muted" style="margin-bottom:6px">全书情绪曲线（场景级规则情感打分聚合, '+arc.length+' 章）—— ◆=暗线结论(反转/伏笔), 点击跳剧情推理</div>';
+    h+='<svg viewBox="0 0 '+W2+' '+H2+'" style="width:100%">';
+    h+='<line x1="'+pad+'" y1="'+H2/2+'" x2="'+(W2-pad)+'" y2="'+H2/2+'" stroke="#c8ccd1" stroke-dasharray="3 3"></line>';
+    arc.forEach((a,i)=>{const x=xs(i),y=ys(a.sentiment);
+      const rv=revByCh[a.ch];
+      h+='<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="'+(a.sentiment>=0?'#12B5C4':'#6B7785')+'"></circle>';
+      if(rv) h+='<circle cx="'+x+'" cy="'+y+'" r="6" fill="none" stroke="#FF7A45" stroke-width="1.5" style="cursor:pointer" onclick="go(\'plot\')" data-tip="反转: '+esc(rv.fact||'')+'"></circle>'+
+        '<text x="'+(x+7)+'" y="'+(y-5)+'" font-size="11" fill="#FF7A45">◆</text>';
+      if(i%Math.max(1,Math.floor(arc.length/8))===0||i===arc.length-1)
+        h+='<text x="'+x+'" y="'+(H2-4)+'" font-size="9" fill="#a2a9b1" text-anchor="middle">'+a.ch+'</text>';
+    });
+    h+='<path d="'+path+'" fill="none" stroke="#3366cc" stroke-width="1.5" opacity="0.6"></path>';
+    h+='</svg></div>';
+  }
+  const mnt=C.montage||[];
+  if(mnt.length){
+    h+='<div class="card" style="padding:10px"><h3>蒙太奇 · 场景切换</h3><div class="muted" style="margin-bottom:6px">相邻场景地点变化=切镜（来自 scenes 数据'+SRC.G+'）</div>';
+    mnt.slice(0,6).forEach(m=>h+='<div style="margin:2px 0"><b>第 '+m.ch+' 章</b> <span class="cat-badge" style="background:#eef2f5;color:#54595d">'+m.cuts+' 次切镜</span></div>');
+    h+='</div>';
+  }
+  const chz=C.characterization||{};
+  if((chz.relation_hub||[]).length){
+    h+='<div class="card" style="padding:10px"><h3>角色塑造</h3><div class="muted" style="margin-bottom:6px">关系枢纽与疑点承载人物（取经人物简历'+SRC.M+'）</div>';
+    h+='<div style="margin:2px 0"><b>关系枢纽:</b> '+(chz.relation_hub||[]).map(x=>'<span class="tag" data-go="char" data-name="'+esc(x.name)+'">'+esc(x.name)+' ×'+x.n+'</span>').join('')+'</div>';
+    h+='<div style="margin:2px 0"><b>疑点承载:</b> '+(chz.doubt_carrier||[]).map(x=>'<span class="tag" data-go="char" data-name="'+esc(x.name)+'">'+esc(x.name)+' ×'+x.n+'</span>').join('')+'</div>';
+    h+='</div>';
+  }
+  // 创作解析分布(取经拉片标注 🎬)
+  const annCnt={};
+  SCENE_ANNOT.forEach(a=>{ const f=a.plot_function||'其他'; annCnt[f]=(annCnt[f]||0)+1; });
+  const annKeys=Object.keys(annCnt);
+  if(annKeys.length){
+    h+='<div class="card" style="padding:10px"><h3>创作解析分布（关键场景 '+SCENE_ANNOT.length+' 个 · 点击跳剧情画布）'+SRC.G+'</h3><div class="muted" style="margin-bottom:6px">拉片标注的创作意图构成, 见剧情板块画布 🎬 标记</div>';
+    annKeys.sort((a,b)=>annCnt[b]-annCnt[a]).forEach(f=>{
+      h+='<span class="tag" style="background:#f3e8ff;color:#5e2d8a;border-color:#d8b8ff;cursor:pointer" onclick="go(\'plot\')">'+esc(f)+' ×'+annCnt[f]+'</span>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+
+  /* ============ 2 段 · 修辞手法 ============ */
+  h+='<div class="sec" id="sec-duan"><h2>段 · 修辞手法'+SRC.S+'</h2>';
+  const rhe=P.rhetoric||{};
+  const rheKeys=Object.keys(rhe);
+  if(rheKeys.length){
+    h+='<table class="tbl"><tr><th>修辞</th><th>次数</th><th>次/场景</th><th>同类均值</th><th>示例场景</th></tr>';
+    rheKeys.forEach(k=>{
+      const r=rhe[k];
+      const ex=(r.examples||[]).map(e=>'第'+e.ch+'章 s'+e.scene).join(' · ')||'—';
+      const bm=BL&&BL.rhetoric&&BL.rhetoric[k]?BL.rhetoric[k].mean:null;
+      h+='<tr><td><b>'+esc(k)+'</b></td><td>'+r.n+'</td><td>'+r.per_scene+'</td><td>'+
+        (bm!=null?'<span class="muted">'+bm+'</span>':'<span class="muted" style="color:#a2a9b1">待积累</span>')+
+        '</td><td class="muted">'+esc(ex)+'</td></tr>';
+    });
+    h+='</table>';
+  } else h+='<div class="muted">未识别到显著修辞。</div>';
+  const foil=P.foil||[];
+  if(foil.length){
+    h+='<h3>烘托/衬托候选（场景环境+人物）</h3><ul class="tight">';
+    foil.slice(0,6).forEach(f=>h+='<li>第'+f.ch+'章 · '+esc(f.where||'?')+' <span class="muted">(场景 s'+f.scene+')</span></li>');
+    h+='</ul>';
+  }
+  h+='</div>';
+
+  /* ============ 3 句 · 句式节奏 ============ */
+  h+='<div class="sec" id="sec-ju"><h2>句 · 句式节奏'+SRC.S+'</h2>';
+  const ld=Sen.len_dist||{}, buckets=['0-10','11-20','21-30','31-40','41+'];
+  const ldmax=Math.max.apply(null,buckets.map(b=>ld[b]||0).concat([1]));
+  h+='<div class="card" style="padding:10px"><svg viewBox="0 0 340 150" style="width:100%">';
+  buckets.forEach((b,i)=>{
+    const v=ld[b]||0, bh=Math.round(v/ldmax*100)+10;
+    h+='<rect x="'+(20+i*62)+'" y="'+(135-bh)+'" width="46" height="'+bh+'" fill="#12B5C4" opacity="0.85" rx="2"></rect>'
+      +'<text x="'+(43+i*62)+'" y="'+(128-bh)+'" font-size="10" fill="#72777d" text-anchor="middle">'+v+'</text>'
+      +'<text x="'+(43+i*62)+'" y="148" font-size="10" fill="#54595d" text-anchor="middle">'+b+'字</text>';
+  });
+  h+='</svg><div class="muted">句长分布（全量拆句, 共 '+((Sen.n_sent)||0)+' 句）</div></div>';
+  const ty=Sen.types||{};
+  h+='<div class="card" style="padding:10px"><h3>句式占比</h3>';
+  [['陈述',ty['陈述']||0,'#3366cc'],['疑问',ty['疑问']||0,'#00af89'],['感叹',ty['感叹']||0,'#8e44ad'],['反问',ty['反问']||0,'#d35400']].forEach(x=>{
+    h+='<div style="margin:3px 0"><span style="display:inline-block;width:40px;font-size:12px">'+x[0]+'</span>'+
+      '<span style="display:inline-block;height:12px;width:'+Math.round(x[1]*200)+'px;background:'+x[2]+';border-radius:2px;vertical-align:middle"></span> '+
+      '<span style="font-size:12px;color:#72777d">'+Math.round(x[1]*1000)/10+'%</span></div>';
+  });
+  h+='<h3 style="margin-top:10px">对白 vs 描写</h3>';
+  [['对白',Sen.dialogue_pct||0,'#FF7A45'],['行为',Sen.action_pct||0,'#0A7E8C']].forEach(x=>{
+    h+='<div style="margin:3px 0"><span style="display:inline-block;width:40px;font-size:12px">'+x[0]+'</span>'+
+      '<span style="display:inline-block;height:12px;width:'+Math.round(x[1]*200)+'px;background:'+x[2]+';border-radius:2px;vertical-align:middle"></span> '+
+      '<span style="font-size:12px;color:#72777d">'+Math.round(x[1]*1000)/10+'%（取经语录/行为样本库'+SRC.M+'）</span></div>';
+  });
+  h+='</div>';
+  const ct=Sen.connector_top||[];
+  if(ct.length){
+    h+='<div class="card" style="padding:10px"><h3>衔接句首词 Top'+Math.min(8,ct.length)+'</h3><div>';
+    ct.slice(0,8).forEach(x=>h+='<span class="tag" style="background:#eef2f5;color:#54595d;border-color:#d5dbe0;cursor:default">'+esc(x.w)+' <span class="muted">('+esc(x.cat)+' ×'+x.n+')</span></span>');
+    h+='</div></div>';
+  }
+  h+='</div>';
+
+  /* ============ 4 词 · 用词 DNA（默认折叠, 最细粒度） ============ */
+  h+='<div class="sec" id="sec-ci"><h2>词 · 用词 DNA'+SRC.S+'</h2>'+
+    '<details class="fold"><summary>展开看作者惯用词（形容词/动词, 已过滤通用词与设定词）</summary>';
+  const fa=(W.freq&&W.freq.a)||[], fv=(W.freq&&W.freq.v)||[];
+  h+='<div class="card" style="padding:10px"><div class="wd-legend"><span class="lvl-dot" style="background:#12B5C4"></span>形容词 <span class="lvl-dot" style="background:#FF7A45;margin-left:14px"></span>动词</div><svg class="wordcloud" id="wcSvg" viewBox="0 0 680 190"></svg></div>';
+  const wcWords=fa.slice(0,16).map(w=>({w:w.w,n:w.n,c:'#12B5C4'})).concat(fv.slice(0,16).map(w=>({w:w.w,n:w.n,c:'#FF7A45'})));
+  const wcmax=Math.max.apply(null,wcWords.map(x=>x.n).concat([1]));
+  const wcSvg=wcWords.map((x,i)=>{
+    const r=Math.floor(i/8), col=i%8;
+    const fs=Math.round(11+15*Math.log(1+x.n)/Math.log(1+wcmax));
+    return '<text x="'+(42+col*84)+'" y="'+(30+r*52)+'" font-size="'+fs+'" fill="'+x.c+'" text-anchor="middle" style="cursor:pointer" onclick="searchW(\''+esc(x.w)+'\')">'+esc(x.w)+'</text>';
+  }).join('');
+  h=h.replace('</svg>', wcSvg+'</svg>');
+  const topA=(fa||[]).slice(0,8), topV=(fv||[]).slice(0,8);
+  h+='<table class="tbl"><tr><th>惯用词</th><th>词性</th><th>频率</th><th>频次/万字</th><th>风格度</th></tr>';
+  topA.forEach(x=>h+='<tr><td><b>'+esc(x.w)+'</b></td><td>形容词</td><td>'+x.n+'</td><td>'+Math.round(x.n/((S.sampled_chars||1)/10000)*10)/10+'</td><td class="muted">'+(x.sd!=null?x.sd+'×':'待积累')+'</td></tr>');
+  topV.forEach(x=>h+='<tr><td><b>'+esc(x.w)+'</b></td><td>动词</td><td>'+x.n+'</td><td>'+Math.round(x.n/((S.sampled_chars||1)/10000)*10)/10+'</td><td class="muted">'+(x.sd!=null?x.sd+'×':'待积累')+'</td></tr>');
+  h+='</table>';
+  const cw=W.content_words||{};
+  const cwKeys=Object.keys(cw);
+  if(cwKeys.length){
+    h+='<h3>设定相关词（内容词, 非风格, 已从惯用词表剔除）</h3><div class="card" style="background:#f8f9fa">';
+    cwKeys.forEach(k=>{
+      h+='<div style="margin:4px 0"><span class="cat-badge" style="background:#eef2f5">'+esc(k)+'</span> '+
+        cw[k].slice(0,12).map(x=>'<span class="tag" style="background:#fff;cursor:default" title="设定词, 非风格词">'+esc(x.w)+' ×'+x.n+'</span>').join('')+'</div>';
+    });
+    h+='</div>';
+  }
+  const img=(W.imagery&&Object.keys(W.imagery).length)?W.imagery:null;
+  if(img){
+    h+='<h3>意象体系（设定图谱取经）</h3><div>';
+    Object.keys(img).forEach(k=>{
+      h+='<div style="margin:4px 0"><span class="cat-badge" style="background:#f0f2f5">'+esc(k)+'</span> '+
+        img[k].slice(0,10).map(x=>'<span class="tag" data-go="term" data-name="'+esc(x)+'">'+esc(x)+'</span>').join('')+'</div>';
+    });
+    h+='</div>';
+  }
+  h+='</details></div>';
+
+  /* ============ LLM 综合描述 ============ */
+  const nar=S.narrative||{};
+  if(nar.fact){
+    h+='<div class="sec"><h2>文风叙事总结'+SRC.L+'</h2><div class="card warn"><div class="bd lead">'+esc(nar.fact)+'</div>'+
+      (nar.chain?'<div class="muted" style="margin-top:8px;white-space:pre-wrap">分析依据：'+esc(nar.chain)+'</div>':'')+'</div></div>';
+  }
+  return h+reviewCard('文风');
+}
+
+/* ============ 图谱绘制 ============ */
+function bindTip(){
+  const tip=document.getElementById('tip');
+  document.querySelectorAll('[data-tip]').forEach(el=>{
+    el.addEventListener('mousemove',e=>{tip.textContent=el.dataset.tip;tip.style.display='block';
+      tip.style.left=Math.min(e.clientX+12,window.innerWidth-290)+'px';tip.style.top=(e.clientY+16)+'px';});
+    el.addEventListener('mouseleave',()=>tip.style.display='none');
+  });
+}
+const CAT_COLOR={'世界观':'#3366cc','规则':'#00af89','力量体系':'#8e44ad','组织':'#d35400','物品':'#c0392b',
+  '地点':'#16a085','人物':'#2c3e50','角色':'#2c3e50','职业':'#7f8c8d','行为':'#95a5a6','事件':'#e67e22',
+  '技能':'#27ae60','生物':'#8d6e63','仪式':'#af7ac5','情感':'#e91e63','概念':'#607d8b','信息':'#546e7a','历史人物':'#34495e'};
+function catColor(c){return CAT_COLOR[c]||'#7f8c8d';}
+
+function drawSettingGraph(focus){
+  const svg=document.getElementById('sgSvg');
+  if(!svg)return;
+  let nodes,edges;
+  if(focus){
+    // 局部: 焦点 + 一跳邻居
+    const nb=new Set([focus]);
+    (SG.relations||[]).forEach(r=>{ if(r.from===focus)nb.add(r.to); if(r.to===focus)nb.add(r.from); });
+    nodes=[...nb].filter(n=>TERMS[n]).map(n=>({id:n,cat:(TERMS[n].category||''),name:n}));
+    edges=(SG.relations||[]).filter(r=>r.from===focus||r.to===focus)
+      .filter(r=>nb.has(r.from)&&nb.has(r.to))
+      .map(r=>({a:r.from,b:r.to,type:r.type||'',how:r.how||''}));
+  }else{
+    // 全局: 取关联度 top N
+    const deg={};
+    (SG.relations||[]).forEach(r=>{deg[r.from]=(deg[r.from]||0)+1;deg[r.to]=(deg[r.to]||0)+1;});
+    const sel=document.getElementById('sgCat');
+    const cat=sel?sel.value:'';
+    const cand=TERM_LIST.filter(t=>!cat||(t.category||'')===cat)
+      .sort((a,b)=>(deg[b.name]||0)-(deg[a.name]||0)).slice(0,70);
+    const ids=new Set(cand.map(t=>t.name));
+    nodes=cand.map(t=>({id:t.name,cat:(t.category||''),name:t.name,r:isEphemeral(t)?5:8}));
+    edges=(SG.relations||[]).filter(r=>ids.has(r.from)&&ids.has(r.to))
+      .map(r=>({a:r.from,b:r.to,type:r.type||'',how:r.how||''}));
+    // 图例
+    const lg=document.getElementById('sgLegend');
+    if(lg){
+      const cats={}; nodes.forEach(n=>cats[n.cat]=(cats[n.cat]||0)+1);
+      lg.innerHTML=Object.keys(cats).sort((a,b)=>cats[b]-cats[a]).slice(0,8)
+        .map(c=>'<span><span class="dot" style="background:'+catColor(c)+'"></span>'+esc(c)+'</span>').join('');
+    }
+    if(sel) sel.onchange=()=>drawSettingGraph('');
+  }
+  forceLayout(svg,nodes,edges,{focus:focus,radius:8,labelSize:10});
+}
+
+function drawClueGraph(){
+  const svg=document.getElementById('clueSvg');
+  if(!svg)return;
+  const nodes=[],edges=[];
+  (CLUE.conclusions||[]).forEach(c=>nodes.push({id:c.id,cat:'结论',name:'结论'+(c.id||''),kind:'concl',r:9}));
+  (CLUE.clusters||[]).forEach(c=>nodes.push({id:c.id,cat:'簇',name:c.id,kind:'cluster',r:6+(c.weight||1)}));
+  (CLUE.evidence||[]).slice(0,120).forEach(e=>nodes.push({id:e.id,cat:'证据',name:(e.text||'').slice(0,8),kind:'ev',r:4}));
+  (CLUE.conclusions||[]).forEach(c=>{
+    if(CL_MAP[c.cluster_id])edges.push({a:c.id,b:CL_MAP[c.cluster_id].id});
+    (c.evidence_ids||[]).forEach(eid=>{if(EV_MAP[eid])edges.push({a:eid,b:c.id});});
+  });
+  (CLUE.clusters||[]).forEach(c=>(c.member_ids||[]).forEach(eid=>{if(EV_MAP[eid])edges.push({a:eid,b:c.id});}));
+  forceLayout(svg,nodes,edges,{radius:0,labelSize:9,
+    colorOf:n=>({结论:'#d33',簇:'#fc3',证据:'#00af89'})[n.cat]||'#7f8c8d'});
+}
+
+/* 通用力导向布局 —— 用 createElementNS 保证 SVG 命名空间正确 */
+function forceLayout(svg,nodes,edges,opt){
+  opt=opt||{};
+  const W=svg.clientWidth||900,H=svg.clientHeight||440;
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  if(!nodes.length){
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',W/2);t.setAttribute('y',H/2);t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','#72777d');t.setAttribute('font-size','13');t.textContent='（暂无可绘制的节点）';
+    svg.appendChild(t);return;
+  }
+  const NS='http://www.w3.org/2000/svg';
+  const map={};nodes.forEach(n=>map[n.id]=n);
+  edges=edges.filter(e=>map[e.a]&&map[e.b]);
+  // focus 必须先声明再使用: 下方 nodes.forEach 内会引用它,
+  // 若声明在其后会触发 TDZ (Cannot access 'focus' before initialization)。
+  const focus=opt.focus;
+  nodes.forEach((n,i)=>{
+    const a=(i/nodes.length)*Math.PI*2;
+    n.x=W/2+Math.cos(a)*(focus?90:160)+Math.random()*40;
+    n.y=H/2+Math.sin(a)*(focus?70:130)+Math.random()*40;
+    n.vx=0;n.vy=0;
+  });
+  const iters=nodes.length>200?80:140;
+  for(let it=0;it<iters;it++){
+    for(let i=0;i<nodes.length;i++){
+      const a=nodes[i];
+      for(let j=i+1;j<nodes.length;j++){
+        const b=nodes[j];
+        let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy;
+        if(d2<1){d2=1;dx=Math.random()-.5;dy=Math.random()-.5;}
+        const f=(nodes.length>150?500:900)/d2, d=Math.sqrt(d2);
+        a.vx+=dx/d*f*0.008;a.vy+=dy/d*f*0.008;b.vx-=dx/d*f*0.008;b.vy-=dy/d*f*0.008;
+      }
+    }
+    edges.forEach(e=>{
+      const a=map[e.a],b=map[e.b];
+      const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+      const f=(d-(focus?80:70))*0.02;
+      a.vx+=dx/d*f;a.vy+=dy/d*f;b.vx-=dx/d*f;b.vy-=dy/d*f;
+    });
+    nodes.forEach(n=>{
+      n.x+=n.vx;n.y+=n.vy;n.vx*=0.85;n.vy*=0.85;
+      n.x=Math.max(30,Math.min(W-30,n.x));n.y=Math.max(20,Math.min(H-24,n.y));
+    });
+  }
+  const colorOf=opt.colorOf||(n=>catColor(n.cat));
+  const gE=document.createElementNS(NS,'g');
+  edges.forEach(e=>{
+    const a=map[e.a],b=map[e.b];
+    const ln=document.createElementNS(NS,'line');
+    ln.setAttribute('x1',a.x.toFixed(1));ln.setAttribute('y1',a.y.toFixed(1));
+    ln.setAttribute('x2',b.x.toFixed(1));ln.setAttribute('y2',b.y.toFixed(1));
+    ln.setAttribute('stroke','#c8ccd1');ln.setAttribute('stroke-width','1');
+    ln.dataset.a=e.a;ln.dataset.b=e.b;
+    gE.appendChild(ln);
+  });
+  svg.appendChild(gE);
+  const gN=document.createElementNS(NS,'g');
+  nodes.forEach(n=>{
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('class','nd');g.dataset.id=n.id;
+    const r=(focus&&n.id===focus)?13:(opt.r?Math.max(opt.r,n.r||4):(n.r||(opt.radius||8)));
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',n.x.toFixed(1));c.setAttribute('cy',n.y.toFixed(1));c.setAttribute('r',r);
+    c.setAttribute('fill',colorOf(n));c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','1.6');
+    g.appendChild(c);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',n.x.toFixed(1));t.setAttribute('y',(n.y+r+11).toFixed(1));
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size',opt.labelSize||10);
+    t.setAttribute('fill','#54595d');t.textContent=n.name;
+    g.appendChild(t);
+    g.style.cursor='pointer';
+    g.addEventListener('mouseenter',()=>{
+      const nb=new Set([n.id]);
+      edges.forEach(e=>{if(e.a===n.id)nb.add(e.b);if(e.b===n.id)nb.add(e.a);});
+      svg.querySelectorAll('.nd').forEach(x=>x.style.opacity=nb.has(x.dataset.id)?1:0.12);
+      svg.querySelectorAll('line').forEach(l=>{
+        const hl=(l.dataset.a===n.id||l.dataset.b===n.id);
+        l.setAttribute('stroke',hl?'#d33':'#eaecf0');l.setAttribute('stroke-width',hl?'1.8':'1');
+      });
+    });
+    g.addEventListener('mouseleave',()=>{
+      svg.querySelectorAll('.nd').forEach(x=>x.style.opacity=1);
+      svg.querySelectorAll('line').forEach(l=>{l.setAttribute('stroke','#c8ccd1');l.setAttribute('stroke-width','1');});
+    });
+    g.addEventListener('click',()=>{
+      if(TERMS[n.id]) go('term',n.id);
+      else if(CHARS[n.id]) go('char',n.id);
+    });
+    gN.appendChild(g);
+  });
+  svg.appendChild(gN);
+}
+
+/* 局部小图 —— 用于 Infobox 内展示词条/人物的一跳关系 */
+function drawMiniGraph(focusName){
+  const svg=document.getElementById('miniSvg');
+  if(!svg||!focusName||!TERMS[focusName]) return;
+  const nb=new Set([focusName]);
+  const edges=[];
+  (SG.relations||[]).forEach(r=>{
+    if(r.from===focusName){ nb.add(r.to); edges.push({a:r.from,b:r.to}); }
+    else if(r.to===focusName){ nb.add(r.from); edges.push({a:r.from,b:r.to}); }
+  });
+  const t=TERMS[focusName];
+  (t.related||[]).forEach(rr=>{ if(TERMS[rr.to]){ nb.add(rr.to); edges.push({a:focusName,b:rr.to}); } });
+  const nodes=[...nb].filter(n=>TERMS[n]).map(n=>({id:n,cat:TERMS[n].category||'',name:n,focus:n===focusName,r:n===focusName?10:5}));
+  // 如果只有中心点, 也显示一个节点
+  forceLayout(svg,nodes,edges,{focus:focusName,labelSize:9});
+}
+
+
+
+/* ============ 搜索 ============ */
+const IDX=[];
+CHAR_LIST.forEach(c=>IDX.push({t:'char',n:c.name,k:c.name+' '+(c.identity||'')+' '+(c.personality||'')}));
+TERM_LIST.forEach(t=>IDX.push({t:'term',n:t.name,k:t.name+' '+(t.aliases||[]).join(' ')+' '+(t.definition||'')}));
+Object.keys(CF).forEach(n=>{
+  (CF[n].sayings||[]).slice(0,3).forEach(s=>IDX.push({t:'char',n:canon(n),k:s,q:s}));
+});
+const q=document.getElementById('q'), sug=document.getElementById('sug');
+const TN={char:'人物',term:'设定'};
+q.addEventListener('input',()=>{
+  const v=q.value.trim();
+  if(!v){sug.classList.remove('on');sug.innerHTML='';return;}
+  const low=v.toLowerCase();
+  const hit=IDX.filter(x=>x.k.toLowerCase().indexOf(low)>=0).slice(0,40);
+  if(!hit.length){sug.innerHTML='<div class="muted" style="cursor:default">无匹配结果</div>';sug.classList.add('on');return;}
+  sug.innerHTML=hit.map((x,i)=>'<div data-i="'+i+'" data-t="'+x.t+'" data-n="'+esc(x.n)+'">'+
+    (x.q?'<span class="t">语录</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x.q.slice(0,50))+'</span>'
+        :'<span class="t">'+TN[x.t]+'</span><b>'+esc(x.n)+'</b>')+'</div>').join('');
+  sug.classList.add('on');
+  sug.querySelectorAll('div[data-i]').forEach(d=>{
+    d.onclick=()=>{ q.value=''; sug.classList.remove('on'); go(d.dataset.t,d.dataset.n); };
+  });
+});
+q.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const f=sug.querySelector('div[data-i]');
+    if(f){ q.value=''; sug.classList.remove('on'); go(f.dataset.t,f.dataset.n); }
+  }else if(e.key==='Escape'){ sug.classList.remove('on'); }
+});
+document.addEventListener('click',e=>{ if(!e.target.closest('.search')) sug.classList.remove('on'); });
+
+/* ============ 初始化 ============ */
+document.getElementById('topcnt').textContent=
+  CHAR_LIST.length+' 人物 · '+TERM_LIST.length+' 设定 · '+(SG.relations||[]).length+' 关系';
+go('overview');
+window.addEventListener('resize',()=>{
+  clearTimeout(window.__rz);
+  window.__rz=setTimeout(()=>{
+    if(CUR.view==='plot')drawClueGraph();
+    else if(CUR.view==='overview'||CUR.view==='term')drawSettingGraph(CUR.view==='term'?CUR.name:'');
+  },260);
+});
+</script></body></html>

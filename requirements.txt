@@ -1,0 +1,10 @@
+# Stage1 Txt2db 依赖说明
+# 本管线仅使用 Python 标准库(sqlite3 / json / urllib / re / concurrent.futures),
+# 无需安装任何第三方包。要求 Python >= 3.10。
+#
+# 仅需本地已运行 Ollama 并拉取模型:
+#   ollama pull qwen3:8b     # 抽取(必须)
+#   ollama pull bge-m3       # 向量切分兜底 + RAG(可选,未拉则自动降级为规则切分 + FTS5)
+#
+# 运行:
+#   python src/sample_run.py --chapters 30

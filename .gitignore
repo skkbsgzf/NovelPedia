@@ -1,0 +1,40 @@
+# ================= 运行产物（不入库） =================
+# outputs/ 每次运行的可视化产物(HTML/JSON), 量大且可再生; 唯一例外: demo/ 里的成品演示
+outputs/*
+!outputs/.gitkeep
+# data/ 中间产物: Stage1 数据库 / 向量缓存 / LLM 直出 JSON / 调试缓存(可跨次复用)
+data/
+# logs/ 跑批日志(logbook 双通道 .log/.jsonl)
+logs/
+# demo_jobs/ web 在线试用的临时任务目录
+demo_jobs/
+# _verify_shots/ CDP 真机验证截图
+_verify_shots/
+# 旧版 output/ 目录(历史遗留, 已并入 outputs/)
+output/
+# resource/ 用户放置的小说原文(txt), 版权敏感一律不入库
+resource/*.txt
+resource/*.epub
+resource/*.md
+
+# ================= 死代码 / 临时文件 =================
+# _legacy/ 实验脚本归档(本地保留, 不入库)
+_legacy/
+_tmp*.js
+_tmp*.py
+*.log
+settings.json.bak*
+
+# ================= Python =================
+.venv_exp/
+__pycache__/
+*.pyc
+
+# ================= 本地环境 / 密钥（红线：绝不入库） =================
+.env
+*.key
+*api_key*
+*.pem
+
+# 编辑器自动备份
+*.bak_*

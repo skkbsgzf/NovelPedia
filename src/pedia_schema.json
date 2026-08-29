@@ -1,0 +1,281 @@
+{
+  "schema": "pedia/v1",
+  "description": "PEDIA 统一数据规范 v1 —— 开源公益拆书知识库的条目格式。所有书跑完产出的条目必须转成这个格式才能回流进 pedia, 且 pedia 反哺运行时也按这个格式检索。数据形式统一 = 跨书可迁移/可对齐/可裁剪的前提。",
+  "updated": "2026-08-29",
+  "layers": {
+    "worldview": {
+      "align": "hard",
+      "desc": "世界观设定层 —— 跨书可借鉴度最高, 强制统一 schema: 必须落 domain(域) + slot(标准槽位) + rank(有序槽位才有), 只有这一层参与跨书迁移/补档/裁剪/对齐",
+      "required": [
+        "name",
+        "domain",
+        "slot",
+        "definition",
+        "provenance"
+      ],
+      "optional": [
+        "rank",
+        "aliases",
+        "relations",
+        "stats",
+        "fingerprint",
+        "votes"
+      ]
+    },
+    "character": {
+      "align": "soft",
+      "desc": "人物层 —— 不强行统一结构(各书人物形态差异大), 只要求产出可比较的 fingerprint(向量 + 画像统计), 供相似度检索",
+      "required": [
+        "name",
+        "provenance",
+        "fingerprint"
+      ],
+      "optional": [
+        "identity",
+        "personality",
+        "trajectory",
+        "relations",
+        "stats"
+      ]
+    },
+    "style": {
+      "align": "soft",
+      "desc": "文风层 —— 不统一结构, 只要求产出可比较的 metrics(句长/对话占比/标点密度等), 供风格距离计算",
+      "required": [
+        "provenance",
+        "fingerprint"
+      ],
+      "optional": [
+        "summary",
+        "samples"
+      ]
+    },
+    "plot": {
+      "align": "soft",
+      "desc": "剧情层 —— 不统一结构, 只要求产出事件序列 + 向量, 供桥段/结构相似度检索",
+      "required": [
+        "provenance",
+        "fingerprint"
+      ],
+      "optional": [
+        "fact",
+        "hypothesis",
+        "events"
+      ]
+    }
+  },
+  "slot_vocabulary": {
+    "desc": "世界观层的标准槽位枚举。现有 settings_graph.category 由 LLM 自由发挥产生了 34 种分类, 跨书不可比, 必须收敛到这 11 个槽位。",
+    "slots": {
+      "power_levels": {
+        "ordered": true,
+        "desc": "力量等级序列(从弱到强), 有 rank, 支持补档"
+      },
+      "abilities": {
+        "ordered": false,
+        "desc": "技能/法术/仪式/能力"
+      },
+      "rules": {
+        "ordered": false,
+        "desc": "规则/机制/试炼/评分/游戏系统"
+      },
+      "locations": {
+        "ordered": false,
+        "desc": "地点/场景/疆域"
+      },
+      "items": {
+        "ordered": false,
+        "desc": "物品/道具/装备/材料"
+      },
+      "orgs": {
+        "ordered": false,
+        "desc": "组织/势力/机构"
+      },
+      "roles": {
+        "ordered": false,
+        "desc": "身份/职业/群体称谓"
+      },
+      "creatures": {
+        "ordered": false,
+        "desc": "种族/生物/怪物"
+      },
+      "concepts": {
+        "ordered": false,
+        "desc": "世界观概念/现象/信息"
+      },
+      "events": {
+        "ordered": false,
+        "desc": "历史事件/大事件"
+      },
+      "other": {
+        "ordered": false,
+        "desc": "无法归入上述槽位(应尽可能少)"
+      }
+    },
+    "category_map": {
+      "desc": "现有 settings_graph.category -> 标准槽位的归并映射(供转换脚本使用; 新分类直接补这里)",
+      "力量体系": "power_levels",
+      "等级": "power_levels",
+      "境界": "power_levels",
+      "技能": "abilities",
+      "法术": "abilities",
+      "仪式": "abilities",
+      "能力": "abilities",
+      "行为体系": "abilities",
+      "规则": "rules",
+      "试炼": "rules",
+      "特殊试炼": "rules",
+      "特殊试练": "rules",
+      "评分体系": "rules",
+      "游戏系统": "rules",
+      "策略": "rules",
+      "地点": "locations",
+      "场所": "locations",
+      "物品": "items",
+      "道具": "items",
+      "装备": "items",
+      "材料": "items",
+      "物品来源": "items",
+      "组织": "orgs",
+      "势力": "orgs",
+      "角色": "roles",
+      "职业": "roles",
+      "人物": "roles",
+      "人物群体": "roles",
+      "角色类型": "roles",
+      "历史人物": "roles",
+      "人际关系": "roles",
+      "专业": "roles",
+      "生物": "creatures",
+      "种族": "creatures",
+      "怪物": "creatures",
+      "世界观": "concepts",
+      "概念": "concepts",
+      "现象": "concepts",
+      "信息": "concepts",
+      "状态": "concepts",
+      "情绪": "concepts",
+      "情感": "concepts",
+      "命途": "concepts",
+      "事件": "events",
+      "历史": "events",
+      "活动": "events",
+      "行为": "other",
+      "其他": "other"
+    }
+  },
+  "entry": {
+    "schema": "pedia/v1",
+    "id": "<string, 稳定ID: sha1(layer|domain|slot|name)[:12]>",
+    "layer": "<worldview|character|style|plot>",
+    "name": "<规范名>",
+    "domain": "<域, 世界观层必填, 如 修真仙侠/诡秘神秘学; 其他层用书名>",
+    "slot": "<标准槽位, 世界观层必填>",
+    "rank": "<int|null, 仅 ordered 槽位(如 power_levels)有, 从1开始>",
+    "definition": "<客观定义, LLM 概括的通用表述 —— 不是原文摘录>",
+    "aliases": [
+      "<别名/异名>"
+    ],
+    "relations": [
+      {
+        "to": "<目标条目名>",
+        "type": "<关系类型>",
+        "how": "<一句话说明>"
+      }
+    ],
+    "provenance": {
+      "book": "<书名>",
+      "book_id": "<sha1(源文件)[:8], 用于跨运行稳定标识>",
+      "chapters": [
+        1,
+        12
+      ],
+      "scenes": [
+        1203,
+        4501
+      ],
+      "extractor": "<setting_agent/1.0|character_agent/1.0|...>",
+      "confidence": 0.82,
+      "quote_hash": "<sha1(原文引述)[:8] —— 只存哈希不存原文, 见 copyright>"
+    },
+    "stats": {
+      "source_scenes": 5,
+      "clue_occurrence": 18,
+      "weight": 84.9,
+      "level": "S|A|B|C"
+    },
+    "fingerprint": {
+      "vec": "<float[] bge-m3 1024d, 软对齐层比较用; 大数组建议外置存储>",
+      "metrics": {
+        "_comment": "文风层指标示例(人物层用 appearance_count/cooccurrence_top 等, 各层自定义但必须可比)",
+        "avg_sentence_len": 21.3,
+        "long_short_ratio": 2.34,
+        "dialogue_ratio": 0.42,
+        "punct_density": 3.1
+      }
+    },
+    "votes": {
+      "up": 0,
+      "down": 0,
+      "note": "<开源治理: 人工校正/举报>"
+    },
+    "span": "<见 span 段: 起止位置统一结构, 各层必填>"
+  },
+  "copyright": {
+    "desc": "★ 开源合规红线(必须遵守)。pedia 开源的是'知识'不是'原文'。",
+    "allowed_to_publish": [
+      "条目名/别名/客观定义(LLM 概括, 非摘录)",
+      "分类槽位/等级档位/关系结构",
+      "统计数字(出现次数/权重/文风指标)",
+      "来源坐标(书名 + 章节号 + 场景号) —— 只存坐标, 不存内容"
+    ],
+    "forbidden_to_publish": [
+      "任何长度的原文引述(quote 全文) —— 受版权保护, 哪怕一句",
+      "章节正文/段落",
+      "provenance 里只允许保留 quote_hash, 原文可留本地但不进开源仓库"
+    ],
+    "enforcement": "回流时按 provenance.quote_hash 字段约束: 开源导出脚本必须剥离 quote 字段, 只留哈希。"
+  },
+  "storage": {
+    "format": "JSONL(每行一个 entry), 按 layer/domain 分片",
+    "layout": [
+      "pedia/schema.json                      # 本规范",
+      "pedia/worldview/<domain>.jsonl         # 世界观层(硬对齐, 按域分片)",
+      "pedia/character/<book_id>.jsonl        # 人物层(软对齐, 按书分片)",
+      "pedia/style/<book_id>.jsonl",
+      "pedia/plot/<book_id>.jsonl",
+      "pedia/vectors/<layer>/<id>.npy         # 大向量外置, 不进 git",
+      "pedia/index/name_to_id.json            # 名称→ID 索引(加速检索)",
+      "pedia/meta.json                        # 版本/规模/更新时间"
+    ],
+    "why_jsonl": "git 差分友好(一行一条目, diff 可读), 便于开源协作的 PR 评审与增量合并"
+  },
+  "flywheel": {
+    "desc": "正反馈飞轮: 每次拆书 -> pedia 扩充 -> 下次运行准确率更高",
+    "steps": [
+      "1. 运行拆书: 抽取事实(带 provenance) -> 裁剪(generic 丢弃通用词) -> 硬对齐(打 domain/slot/rank) -> 补档提示",
+      "2. 导出 book_pedia.jsonl: 按本规范转换(世界观走 category_map 归槽; 人物/文风/剧情只出 fingerprint)",
+      "3. 回流 pedia: 去重(vec 相似 + 同名) -> 冲突仲裁(同名多义保留多义项) -> 累加 provenance -> 更新索引",
+      "4. 反哺下次运行: pedia 作为先验 -> 裁剪更准(已知通用词表更大) / 补全更快(同域槽位直接给候选) / 对齐更准(槽位映射有历史参照)",
+      "5. 循环: pedia 越大 -> 单书抽取时的噪声越少 + 候选越全 -> 准确率越高"
+    ]
+  },
+  "span": {
+    "desc": "★ 统一'起止位置'标注。盘点发现各层位置标注不一致: 设定词条只有 first_seen(起点) 无止点; 人物要靠 appearances 数组现算; sayings/doings 的定位是'第X章sceneY'字符串。所有层统一用 span 表达, 便于记忆衰减/归档/按区间检索。",
+    "fields": {
+      "first_chapter": "int  起点章",
+      "last_chapter": "int  止点章(最后一次出现)",
+      "first_scene": "int  起点场景ID",
+      "last_scene": "int  止点场景ID",
+      "scene_count": "int  出现过的场景数",
+      "chapter_count": "int  跨了多少章"
+    },
+    "how_to_fill": {
+      "worldview": "first_seen -> first_chapter; last_seen -> last_chapter; len(source_scenes) -> scene_count",
+      "character": "min/max(appearances[*][0]) -> first/last_chapter; len(appearances) -> scene_count",
+      "style": "采样区间 -> first/last_chapter; 文风为全书统计, 通常 span=全书",
+      "plot": "conclusion.chapter_no -> first_chapter; 证据簇内最大 chapter_no -> last_chapter"
+    },
+    "note": "止点语义 = '最后一次出现', 与 clue_graph.entities.last_seen 一致(记忆衰减判定用), 不是'失效'"
+  }
+}
