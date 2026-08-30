@@ -156,10 +156,14 @@ def cmd_feel(args, env):
 
 
 def cmd_collect(args, env):
-    """Stage1 四维度并行收集(设定/暗线/人物/文风采样)。"""
+    """Stage1 四维度并行收集(设定/暗线/人物/文风采样)。--fresh: 全量重抽设定(删旧 settings_graph 增量)。"""
     argv = ["--chapters", str(args.chapters), "--parallel", str(args.parallel or 4)]
     if args.doubt_index is not None:
         argv += ["--doubt-index", str(args.doubt_index)]
+    if getattr(args, "fresh", False):
+        env = dict(env) if env else {}
+        env["COLLECT_FRESH"] = "1"
+        print("[collect] --fresh: 删除旧 settings_graph, 设定将全量重抽(不再增量归并)")
     return run("stage1_collect.py", argv, env)
 
 
@@ -634,6 +638,8 @@ def main():
                    help="质疑指数 0-1 (collect/mine 任务: 控制簇触发阈值/思考深度; 默认 llm.config.json 顶层 doubt_index)")
     p.add_argument("--parallel", type=int, default=None,
                    help="场景级/简历并发数 (collect/mine 任务, 默认4)")
+    p.add_argument("--fresh", action="store_true",
+                   help="collect: 全量重抽设定(删除旧 settings_graph 增量, 全书重跑必须加)")
     p.add_argument("--log", default=None, help="analyze 任务: 指定日志 jsonl 路径(默认读最近会话 run_latest.jsonl)")
     p.add_argument("--genre", default=None,
                    help="小说类别(宫斗/修仙/诡秘/系统/灵异/都市…)。★global 通识库默认不加载; "

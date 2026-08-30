@@ -33,7 +33,11 @@ _BOOK_PATH = os.getenv("BOOK_PATH") or (_S.get("novel") or {}).get("path", "")
 # 相对路径一律按项目根解析(开源友好: settings.json 里写 resource/小说.txt 即可)
 if _BOOK_PATH and os.path.isabs(_BOOK_PATH):
     BOOK_PATH = _BOOK_PATH
+elif _BOOK_PATH and os.path.splitext(_BOOK_PATH)[1].lower() in (".txt", ".epub"):
+    # 相对路径已含文件名(如 resource/小说.txt): 直接挂项目根, 不再拼默认名
+    BOOK_PATH = os.path.join(PROJECT_ROOT, _BOOK_PATH)
 else:
+    # 只给了目录(或留空): 用默认文件名 小说.txt
     BOOK_PATH = os.path.join(PROJECT_ROOT, _BOOK_PATH or "resource", "小说.txt")
 CHAPTERS = int(os.getenv("NOVEL_CHAPTERS") or (_S.get("novel") or {}).get("chapters", 50))
 

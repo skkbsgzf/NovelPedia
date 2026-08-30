@@ -347,6 +347,7 @@ function wl(text){
 /* ============ 视图路由 ============ */
 let CUR={view:'overview',name:''};
 function go(view,name){
+  if(view==='char'&&!name&&CHAR_LIST.length) name=CHAR_LIST[0].name;  // 人物页无指定时自动选首个(按权重)
   CUR={view:view,name:name||''};
   // 分模块容错: 任一模块渲染失败不应导致整页不可用(尤其图谱/侧栏)
   try{ renderMain(); }catch(err){ console.error('renderMain',err);

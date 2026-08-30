@@ -4,7 +4,7 @@
     "_说明": "原始小说：path 为 txt 绝对路径，chapters 为要处理的章数（决定数据库与产物规模）",
     "name": "诡秘之主",
     "path": "resource/小说.txt",
-    "chapters": 300
+    "chapters": 1308
   },
   "llm": {
     "_说明": "LLM 后端。可选: xiaohongshu(小红书dots.ai, 默认) / glm(智谱GLM-4-Flash, 免费) / qwen3(本地Ollama)。api_key 留空则从环境变量 LLM_API_KEY 读取。",

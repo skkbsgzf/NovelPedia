@@ -112,8 +112,12 @@ def run(chapters=None, backend=None, doubt_index=None, parallel=4):
     style_samples_path = os.path.join(out_dir, "style_samples.json")
     registry_path = os.path.join(out_dir, "entity_registry.json")
 
-    # 清理本次运行的旧产物(settings_graph 保留增量)
-    for p in [clue_path, char_facts_path, style_samples_path, registry_path]:
+    # 清理本次运行的旧产物(settings_graph 默认保留增量; COLLECT_FRESH=1 时全量重抽设定,
+    # 避免旧词条引导 LLM 归并导致新场景被并进旧词条(D1 缺陷根因))
+    clean = [clue_path, char_facts_path, style_samples_path, registry_path]
+    if os.environ.get("COLLECT_FRESH") == "1":
+        clean.append(settings_graph_path)
+    for p in clean:
         if os.path.exists(p):
             os.remove(p)
 
