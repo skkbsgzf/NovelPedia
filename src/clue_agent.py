@@ -35,6 +35,18 @@ import config as C
 # ======================================================================
 # 数据结构
 # ======================================================================
+def _strip_fence(s):
+    """剥 ```json 围栏(非 json_mode 时模型可能用 markdown 包裹 JSON)。"""
+    if not s:
+        return s
+    t = str(s).strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[-1] if "\n" in t else t.lstrip("`")
+        if t.endswith("```"):
+            t = t[:-3]
+    return t.strip()
+
+
 def empty_graph():
     return {"schema": 1, "evidence": [], "clusters": [], "conclusions": [],
             "entities": [], "relations": [], "meta": {"doubt_index": 0.5}}
@@ -130,9 +142,9 @@ def extract_entities_per_chapter(scenes_by_chapter, base, model):
             parts.append("scene%s: %s" % (sc.get("scene_id"), acts[:200]))
         user = REG_USER.format(chapter_no=cn, scenes="\n".join(parts))
         try:
-            raw = llm_client.chat(REG_SYSTEM, user, json_mode=True,
+            raw = llm_client.chat(REG_SYSTEM, user, json_mode=False,
                                   num_predict=600, temperature=0.2)[0]
-            d = _j.loads(raw)
+            d = json.loads(_strip_fence(raw))
             if isinstance(d, dict):
                 for k in ("entities", "data", "result"):
                     if isinstance(d.get(k), list):
@@ -496,9 +508,9 @@ def batch_synthesize(graph, base, model, doubt_index, prior_str="", cur_chapter=
     clusters_text = "\n\n".join(parts)
     user = SYNTH_USER.format(clusters=clusters_text, depth=depth)
     try:
-        raw = llm_client.chat(SYNTH_SYSTEM, user, json_mode=True,
+        raw = llm_client.chat(SYNTH_SYSTEM, user, json_mode=False,
                               num_predict=1200, temperature=0.5)[0]
-        d = json.loads(raw)
+        d = json.loads(_strip_fence(raw))
         if isinstance(d, dict):
             for k in ("conclusions", "results", "data", "items"):
                 if isinstance(d.get(k), list):

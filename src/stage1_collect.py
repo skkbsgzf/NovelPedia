@@ -28,6 +28,7 @@ import llm_client
 import clue_agent
 import setting_agent
 import character_agent
+from logbook import get_logbook as _get_logbook
 import style_sampler
 
 
@@ -97,6 +98,8 @@ def setup_backend(backend, doubt_index):
 
 def run(chapters=None, backend=None, doubt_index=None, parallel=4):
     t0 = time.time()
+    lb = _get_logbook()  # 统一日志器(logs/run_<ts>.log + .jsonl); 失败降级不阻塞
+    lb.section("collect", "Stage1 四维收集")
     cfg = llm_client.load_config()
     doubt_index = float(doubt_index) if doubt_index is not None else float(cfg.get("doubt_index", 0.5))
     model = setup_backend(backend, doubt_index)

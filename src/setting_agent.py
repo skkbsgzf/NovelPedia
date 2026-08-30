@@ -136,6 +136,39 @@ SET_USER = """下面是小说第{chapter_no}章 scene{scene_id}的抽取结果�
 - 只输出 JSON 数组。"""
 
 
+def _parse_json_list(raw):
+    """容错解析 LLM 的数组输出(兼容 json_mode=False 时的围栏/包装/截断)。
+    顺序: 剥 ``` 围栏 → json.loads → dict 取数组 key → 原样返回; 失败返回 []。"""
+    import re as _re
+    if not raw:
+        return []
+    s = str(raw).strip()
+    if s.startswith("```"):
+        s = _re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", s).strip()
+    try:
+        d = json.loads(s)
+        if isinstance(d, list):
+            return d
+        if isinstance(d, dict):
+            for k in ("terms", "entities", "data", "result", "items"):
+                if isinstance(d.get(k), list):
+                    return d[k]
+            # 单对象(单实体): 包装成列表
+            if d.get("name"):
+                return [d]
+        return []
+    except Exception:
+        pass
+    # 截断的对象流 {..}{..} 兜底
+    out = []
+    for m in _re.finditer(r'\{[^{}]*"name"[^{}]*\}', s):
+        try:
+            out.append(json.loads(m.group()))
+        except Exception:
+            pass
+    return out
+
+
 def extract_settings(scene, base, model, existing_terms):
     """从场景抽设定实体(定义+关联)。返回 [(delta_dict), ...], 失败返回 []。"""
     import json as _j
@@ -153,17 +186,11 @@ def extract_settings(scene, base, model, existing_terms):
         existing_terms="、".join(existing_terms[:50]) or "(无)",
     )
     try:
-        raw = llm_client.chat(SET_SYSTEM, user, json_mode=True,
+        # 数组输出不能用 json_object 模式(dots.ai 等会回 {}), 用 json_mode=False + 容错解析
+        raw = llm_client.chat(SET_SYSTEM, user, json_mode=False,
                               num_predict=1200, temperature=0.3)[0]
-        d = _j.loads(raw)
-        if isinstance(d, dict):
-            for k in ("terms", "entities", "data", "result"):
-                if isinstance(d.get(k), list):
-                    d = d[k]
-                    break
-        if not isinstance(d, list):
-            return []
-        return [x for x in d if isinstance(x, dict) and x.get("name")]
+        return [x for x in _parse_json_list(raw)
+                if isinstance(x, dict) and x.get("name")]
     except Exception:
         return []
 
@@ -289,7 +316,11 @@ def convolve_settings(scene, graph, deltas):
 # ======================================================================
 def vectorize_terms(graph, base, model=None):
     """对图谱里所有还没向量的设定实体, 用 bge-m3 算向量(stage1 就做, 支持 RAG)。
-    model: 向量化模型名, 默认 C.EMBED_MODEL(bge-m3)。"""
+    model: 向量化模型名, 默认 C.EMBED_MODEL(bge-m3)。
+    EMBED_OFF=1 时跳过(省本地 CPU; 向量仅用于 RAG 检索, 不影响主体产物)。"""
+    import os as _os
+    if _os.environ.get("EMBED_OFF") == "1":
+        return 0
     import rag
     import config as _C
     model = model or _C.EMBED_MODEL
@@ -379,10 +410,8 @@ def normalize_terms(graph, base, model, settings_path, scenes=None):
 [{{"canonical": "规范名", "aliases": ["同实体的其他名字"]}}]"""
     try:
         raw = llm_client.chat(norm_system, norm_user.format(names="、".join(names)),
-                              json_mode=True, num_predict=800, temperature=0.3)[0]
-        groups = json.loads(raw)
-        if isinstance(groups, dict):
-            groups = groups.get("groups") or groups.get("data") or []
+                              json_mode=False, num_predict=800, temperature=0.3)[0]
+        groups = _parse_json_list(raw)
         if not isinstance(groups, list):
             return 0
         merged = 0

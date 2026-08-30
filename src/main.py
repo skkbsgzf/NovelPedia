@@ -147,11 +147,14 @@ def run(chapters=C.SAMPLE_CHAPTERS, base=C.OLLAMA_BASE, model=C.EXTRACT_MODEL,
     n_fts = build_fts(conn)
 
     n_vec = 0
-    print(f"{tag}[6/6] bge-m3 向量索引 (RAG) ...")
-    try:
-        n_vec = embed_and_index(conn, base, C.EMBED_MODEL)
-    except Exception as e:
-        print("  向量化跳过:", e)
+    if os.environ.get("EMBED_OFF") == "1":
+        print(f"{tag}[6/6] 向量索引跳过 (EMBED_OFF=1, 省本地CPU, FTS 检索不受影响)")
+    else:
+        print(f"{tag}[6/6] bge-m3 向量索引 (RAG) ...")
+        try:
+            n_vec = embed_and_index(conn, base, C.EMBED_MODEL)
+        except Exception as e:
+            print("  向量化跳过:", e)
 
     stats = get_stats(conn)
     stats.update({
