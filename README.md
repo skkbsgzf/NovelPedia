@@ -207,6 +207,15 @@ novel_pipeline/
 
 **完整速查**：[docs/参数配置与运行效率.md](docs/参数配置与运行效率.md)（settings/models/CLI/环境变量全字段表 + 实测数据）
 
+**统一配置注册表**：全部行为开关收敛于 `src/config_schema.py`（分层来源：**运行时覆盖 > 环境变量 > settings.json > 内置默认**），`python src/cli.py --list-config` 打印全表；完整清单见 [docs/配置总览.md](docs/配置总览.md)（自动生成，防文档漂移）。新增开关 = 一行 `register()`，零改中心代码。常用行为开关：
+
+| 开关 | 配置项 | 说明 |
+|---|---|---|
+| 省本地 CPU | `EMBED_OFF=1` 或 `embed.off` | 跳过 bge-m3 向量索引/设定向量化（FTS 检索不受影响；暗线聚类所需证据向量不跳过） |
+| 全量重抽设定 | `--fresh` 或 `collect.fresh` | 删除旧 settings_graph 增量，设定全量重抽（全书重跑必须加） |
+| 联网搜索 | `EXTERNAL_SEARCH=1` 或 `rag.external_search` | 启用 knowledge_router L3 联网钩子（需自行实现搜索接口） |
+| 类别加载 | `--genre 宫斗` | 按类别加载公版体系域（默认 global 不开放） |
+
 ### 运行效率参考（300 章实测，dots.ai 主后端）
 
 | 阶段 | 50 章 | 300 章 | 说明 |

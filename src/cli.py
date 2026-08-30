@@ -47,6 +47,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config as C
+import config_schema
 import llm_client
 import webnovel_lexicon
 import style_baseline
@@ -95,12 +96,14 @@ def _resolve_backend_name(backend):
 
 
 def backend_env(backend, model=None, key=None, preset=None, role_models=None):
-    """根据 backend 构造LLM_* 环境变量字典(不污染os.environ)。
+    """根据 backend 构造 LLM_* 环境变量字典(不污染 os.environ)。
+    基础 env 来自 config_schema.export_env()(统一注册表: NOVEL_*/EMBED_OFF/COLLECT_FRESH/LLM_*),
+    再由 preset 覆盖 LLM_* 四项(预设能力字段优先)。
     role_models: {"review": "glm-4-flash"} -> 序列化进 LLM_ROLE_MODELS 供子进程角色路由。"""
     cfg = preset or load_cfg()
     name = _resolve_backend_name(backend)
     p = (cfg.get("presets") or {}).get(name) or DEFAULTS.get(name)
-    env = dict(os.environ)
+    env = config_schema.export_env()   # 统一配置导出(分层合并后的最终值)
     env["LLM_BACKEND"] = p.get("backend", "ollama")
     env["LLM_BASE_URL"] = p.get("base_url", DEFAULTS["dots3-note"]["base_url"])
     env["LLM_MODEL"] = model or p.get("model", C.EXTRACT_MODEL)
@@ -109,7 +112,7 @@ def backend_env(backend, model=None, key=None, preset=None, role_models=None):
     scheme = p.get("auth_scheme", "none")
     if scheme != "none":
         env["LLM_AUTH_SCHEME"] = scheme
-        key = key or os.environ.get("LLM_API_KEY", C.LLM_API_KEY or "")
+        key = key or env.get("LLM_API_KEY") or C.LLM_API_KEY or ""
         if not key:
             print(f"⚠️ 后端 [{name}] 需要API key:")
             print(f"   方式1: 环境变量  set LLM_API_KEY=你的key")
@@ -130,6 +133,35 @@ def backend_env(backend, model=None, key=None, preset=None, role_models=None):
     if role_models:
         print(f"   角色覆盖: " + ", ".join(f"{r}→{pp}" for r, pp in role_models.items()))
     return env
+
+
+def _cli_to_cfg(a):
+    """CLI 参数 → 注册表(统一配置源; 子进程/子任务自动继承)。"""
+    _CS = config_schema
+    if getattr(a, "backend", None):
+        _CS.set("llm.backend", a.backend)
+    if getattr(a, "chapters", None):
+        _CS.set("novel.chapters", a.chapters)
+    if getattr(a, "fresh", False):
+        _CS.set("collect.fresh", True)
+    if getattr(a, "parallel", None):
+        _CS.set("run.parallel", a.parallel)
+    if getattr(a, "doubt_index", None) is not None:
+        _CS.set("llm.doubt_index", a.doubt_index)
+    if getattr(a, "key", None):
+        _CS.set("llm.api_key", a.key)
+    if getattr(a, "model", None):
+        _CS.set("llm.model", a.model)
+    if getattr(a, "src", None):
+        _CS.set("run.src_dir", a.src)
+    if getattr(a, "out_dir", None):
+        _CS.set("run.out_dir", a.out_dir)
+    if getattr(a, "extract_mode", None):
+        _CS.set("extract.mode", a.extract_mode)
+    if getattr(a, "genre", None):
+        _CS.set("novel.genre", a.genre)
+    if getattr(a, "log", None):
+        _CS.set("run.log", a.log)
 
 
 def run(script, args, env):
@@ -156,13 +188,12 @@ def cmd_feel(args, env):
 
 
 def cmd_collect(args, env):
-    """Stage1 四维度并行收集(设定/暗线/人物/文风采样)。--fresh: 全量重抽设定(删旧 settings_graph 增量)。"""
+    """Stage1 四维度并行收集(设定/暗线/人物/文风采样)。--fresh: 全量重抽设定(删旧 settings_graph 增量)。
+    fresh 经注册表 collect.fresh 统一透传(export_env 自动写 COLLECT_FRESH)。"""
     argv = ["--chapters", str(args.chapters), "--parallel", str(args.parallel or 4)]
     if args.doubt_index is not None:
         argv += ["--doubt-index", str(args.doubt_index)]
     if getattr(args, "fresh", False):
-        env = dict(env) if env else {}
-        env["COLLECT_FRESH"] = "1"
         print("[collect] --fresh: 删除旧 settings_graph, 设定将全量重抽(不再增量归并)")
     return run("stage1_collect.py", argv, env)
 
@@ -575,6 +606,7 @@ def interactive():
     args = argparse.Namespace(backend=backend, chapters=C.CHAPTERS, model=None,
                               key=None, out_dir=None, question="", src=None,
                               doubt_index=None, parallel=4)
+    _cli_to_cfg(args)   # 交互选择同样进注册表
     print(f"\n→后端: {backend} | 任务: {task}")
     env = backend_env(backend, args.model, args.key, cfg)
     HANDLERS[task](args, env)
@@ -624,6 +656,8 @@ def main():
     p.add_argument("--backend", default=C.LLM_BACKEND,
                    help="主 LLM 预设名(枚举见 models.json; 兼容旧名 local/cloud/xiaohongshu/glm/qwen3)")
     p.add_argument("--list-backends", action="store_true", help="列出全部模型预设与能力字段后退出")
+    p.add_argument("--list-config", action="store_true",
+                   help="打印全部配置项(注册表, 分层来源)后退出")
     p.add_argument("--role", action="append", default=None, metavar="ROLE=PRESET",
                    help="角色级模型覆盖, 可多次 (如 --role review=glm-4-flash 评述用强模型)")
     p.add_argument("--chapters", type=int, default=C.CHAPTERS)
@@ -648,9 +682,21 @@ def main():
     if a.list_backends:
         list_backends()
         return
+    if a.list_config:
+        print(config_schema.markdown_table())
+        return
     if not a.task:
         interactive()
         return
+    # CLI 参数 → 注册表(统一配置源, 子进程经 export_env 自动继承)
+    _cli_to_cfg(a)
+    # fail-fast 配置校验
+    _errs = config_schema.validate_all()
+    if _errs:
+        print("[config] 配置校验失败:")
+        for _e in _errs:
+            print(f"  ✗ {_e}")
+        sys.exit(2)
     # analyze 不需要 LLM 后端(纯日志分析), 提前分发
     if a.task == "analyze":
         sys.exit(cmd_analyze(a, {}) or 0)

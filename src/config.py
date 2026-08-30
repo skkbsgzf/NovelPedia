@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-管线配置中心（单一真源）
+管线配置中心（单一真源）→ 统一注册表 config_schema.py
 
-所有路径 / 章数 / 模型都从项目根目录的 settings.json 读取，改那里即可，无需动逻辑代码。
+所有行为开关经 config_schema 注册表读取(分层: 运行时覆盖 > 环境变量 > settings.json > 默认)。
+本文件保留 C.XXX 常量名供全工程引用(兼容零改动), 值全部来自注册表。
 目录约定（详见 README）：
   - data/     中间产物：Stage1 数据库、向量缓存、LLM 直出 JSON、调试缓存（可跨次运行复用）
   - outputs/  每次运行的可视化产物：outputs/<小说名>_<日期>/  下全是自包含 HTML + 数据 JSON
@@ -12,24 +13,14 @@ import re
 import json
 import datetime
 
+import config_schema as _CS
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.json")
 
-
-def _load_settings():
-    try:
-        with open(SETTINGS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-_S = _load_settings()
-
-# ===== 小说 =====
-# NOVEL_NAME 支持环境变量覆盖(web demo 每任务异步跑, 避免共享 settings.json 竞态)
-NOVEL_NAME = os.getenv("NOVEL_NAME") or (_S.get("novel") or {}).get("name", "小说")
-_BOOK_PATH = os.getenv("BOOK_PATH") or (_S.get("novel") or {}).get("path", "")
+# ===== 小说（注册表: novel.*）=====
+NOVEL_NAME = _CS.get("novel.name") or "小说"
+_BOOK_PATH = _CS.get("novel.path") or ""
 # 相对路径一律按项目根解析(开源友好: settings.json 里写 resource/小说.txt 即可)
 if _BOOK_PATH and os.path.isabs(_BOOK_PATH):
     BOOK_PATH = _BOOK_PATH
@@ -39,36 +30,34 @@ elif _BOOK_PATH and os.path.splitext(_BOOK_PATH)[1].lower() in (".txt", ".epub")
 else:
     # 只给了目录(或留空): 用默认文件名 小说.txt
     BOOK_PATH = os.path.join(PROJECT_ROOT, _BOOK_PATH or "resource", "小说.txt")
-CHAPTERS = int(os.getenv("NOVEL_CHAPTERS") or (_S.get("novel") or {}).get("chapters", 50))
+CHAPTERS = int(_CS.get("novel.chapters") or 50)
 
-# ===== LLM =====
-_LLM = _S.get("llm") or {}
-LLM_BACKEND = _LLM.get("backend", "local")
-OLLAMA_BASE = _LLM.get("base_url", "http://localhost:11434")
-EXTRACT_MODEL = _LLM.get("model", "qwen3:8b")
-EMBED_MODEL = _LLM.get("embed_model", "bge-m3")
-LLM_API_KEY = _LLM.get("api_key", "")
-LLM_AUTH_SCHEME = "none" if LLM_BACKEND == "local" else "apikey"
+# ===== LLM（注册表: llm.*）=====
+LLM_BACKEND = _CS.get("llm.backend") or "local"
+OLLAMA_BASE = _CS.get("llm.base_url") or "http://localhost:11434"
+EXTRACT_MODEL = _CS.get("llm.model") or "qwen3:8b"
+EMBED_MODEL = _CS.get("llm.embed_model") or "bge-m3"
+LLM_API_KEY = _CS.get("llm.api_key") or ""
+LLM_AUTH_SCHEME = _CS.get("llm.auth_scheme") or ("none" if LLM_BACKEND == "local" else "apikey")
 
 # ===== 目录 =====
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 # 默认后缀带时间戳(YYYYMMDD_HHMMSS), 同一天多次运行互不覆盖;
 # 若 settings.json run.date_suffix 手动指定(如 "20260827_incr"), 则用固定后缀实现增量累积。
-_DATE_SUFFIX = (_S.get("run") or {}).get("date_suffix") or datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+_DATE_SUFFIX = _CS.get("run.date_suffix") or datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", f"{NOVEL_NAME}_{_DATE_SUFFIX}")
 # 产物子目录: stage1 过程数据 / stage2 过程数据 / RAG
 STAGE1_DIR = os.path.join(OUTPUT_DIR, "stage1")
 STAGE2_DIR = os.path.join(OUTPUT_DIR, "stage2")
 RAG_DIR = os.path.join(OUTPUT_DIR, "rag")
-RUN_SRC_DIR = (_S.get("run") or {}).get("src_dir", "cloud_fixed")
+RUN_SRC_DIR = _CS.get("run.src_dir") or "cloud_fixed"
 
 # ===== 知识库归档参数(长文本边际爆炸, 见 docs/doubt_index_design.md) =====
 # 从 settings.json run 段读取, 可调; 对应 clue_agent 的活跃层过滤/代际压缩
-_ARCH = (_S.get("run") or {}).get("archive", {}) or {}
-W_RECENT = int(_ARCH.get("w_recent", 30))       # 最近 N 章出现过 → 活跃(长程依赖保护)
-K_FREQ = int(_ARCH.get("k_freq", 3))            # 在 ≥N 章出现 → 活跃(非噪声)
-K_CONFIRM = int(_ARCH.get("k_confirm", 2))      # 被后文证实 N 次 → 永久活跃(长程伏笔保护)
-CONSOLIDATE_EVERY = int(_ARCH.get("every", 20)) # 每 N 章做一次代际压缩(mine 前)
+W_RECENT = int(_CS.get("run.archive.w_recent") or 30)       # 最近 N 章出现过 → 活跃(长程依赖保护)
+K_FREQ = int(_CS.get("run.archive.k_freq") or 3)            # 在 ≥N 章出现 → 活跃(非噪声)
+K_CONFIRM = int(_CS.get("run.archive.k_confirm") or 2)      # 被后文证实 N 次 → 永久活跃(长程伏笔保护)
+CONSOLIDATE_EVERY = int(_CS.get("run.archive.every") or 20) # 每 N 章做一次代际压缩(mine 前)
 
 # 数据库 / 报告落在 data/（可复用，不随每次运行翻新）
 # 按小说名隔离: 不同小说建不同 db/缓存, 避免跨书污染(场景ID/段落ID 会冲突)
@@ -93,7 +82,7 @@ THINK = False                # qwen3 思维链开关:抽取任务必须关闭(�
 SEG_MIN_PARA = 8             # 场景块最小段落数(<8 并入邻块)
 SEG_MAX_PARA = 15            # 场景块最大段落数(>15 强制断)
 SEG_OVERLAP = 1             # 相邻块重叠段落数(仅用于抽取上下文,不写库坐标)
-SEG_MODE = "rule"            # 默认切分模式: "rule"(纯规则) | "vector"(规则+向量突变兜底)
+SEG_MODE = _CS.get("extract.seg_mode") or "rule"  # 默认切分模式: "rule"(纯规则) | "vector"(规则+向量突变兜底)
 
 # 向量突变阈值:实测校准值,不要凭直觉拍
 #   《诡秘之主》第1章(69段)相邻段余弦相似度分布:

@@ -317,9 +317,9 @@ def convolve_settings(scene, graph, deltas):
 def vectorize_terms(graph, base, model=None):
     """对图谱里所有还没向量的设定实体, 用 bge-m3 算向量(stage1 就做, 支持 RAG)。
     model: 向量化模型名, 默认 C.EMBED_MODEL(bge-m3)。
-    EMBED_OFF=1 时跳过(省本地 CPU; 向量仅用于 RAG 检索, 不影响主体产物)。"""
-    import os as _os
-    if _os.environ.get("EMBED_OFF") == "1":
+    embed.off 开启时跳过(省本地 CPU; 向量仅用于 RAG 检索, 不影响主体产物)。"""
+    import config_schema as _CS
+    if _CS.get("embed.off"):
         return 0
     import rag
     import config as _C

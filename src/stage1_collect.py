@@ -24,6 +24,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config as C
+import config_schema
 import llm_client
 import clue_agent
 import setting_agent
@@ -115,10 +116,10 @@ def run(chapters=None, backend=None, doubt_index=None, parallel=4):
     style_samples_path = os.path.join(out_dir, "style_samples.json")
     registry_path = os.path.join(out_dir, "entity_registry.json")
 
-    # 清理本次运行的旧产物(settings_graph 默认保留增量; COLLECT_FRESH=1 时全量重抽设定,
+    # 清理本次运行的旧产物(settings_graph 默认保留增量; collect.fresh 开启时全量重抽设定,
     # 避免旧词条引导 LLM 归并导致新场景被并进旧词条(D1 缺陷根因))
     clean = [clue_path, char_facts_path, style_samples_path, registry_path]
-    if os.environ.get("COLLECT_FRESH") == "1":
+    if config_schema.get("collect.fresh"):
         clean.append(settings_graph_path)
     for p in clean:
         if os.path.exists(p):

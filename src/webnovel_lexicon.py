@@ -105,15 +105,18 @@ def graph():
 # 0) 加载作用域控制(global 库默认不开放)
 # ======================================================================
 def set_scope(domains=None, enabled=None):
-    """设置加载作用域。
+    """设置加载作用域(经 config_schema 注册表持久化, 与 CLI --genre 统一)。
       enabled=False(默认): 全库关闭, 所有查询返回空 —— pipeline 完全不使用 global 知识
       domains=['修真仙侠']: 只开放指定域(可多个)
       domains=None + enabled=True: 全域开放(谨慎, 仅调试用)
     """
+    import config_schema as _CS
     if enabled is not None:
         _SCOPE["enabled"] = bool(enabled)
     if domains is not None:
         _SCOPE["domains"] = set(domains) if domains else None
+    _CS.set("knowledge.scope", {"enabled": _SCOPE["enabled"],
+                                "domains": sorted(_SCOPE["domains"]) if _SCOPE["domains"] else None})
     return get_scope()
 
 

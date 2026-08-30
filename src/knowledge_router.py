@@ -238,10 +238,11 @@ def search_external(query, layer=2, domain=None, local_terms=None):
             return {"layer": 2, "hits": hits, "note": "通识库参考(与原文冲突以原文为准)"}
 
     # L3 联网(钩子)
-    if layer >= 3 and os.getenv("EXTERNAL_SEARCH") == "1":
+    import config_schema as _CS
+    if layer >= 3 and _CS.get("rag.external_search"):
         # TODO: 接入联网搜索接口(WebSearch API / 百科 API)。
         # 约定: 返回结构同 L2, 且 note 必须标注"来源: 联网"。
-        return {"layer": 3, "hits": [], "note": "联网搜索钩子未接入(设置 EXTERNAL_SEARCH=1 并实现本分支)"}
+        return {"layer": 3, "hits": [], "note": "联网搜索钩子未接入(设置 rag.external_search 并实现本分支)"}
 
     return {"layer": 0, "hits": [], "note": "未命中任何层"}
 

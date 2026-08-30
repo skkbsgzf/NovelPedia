@@ -147,8 +147,9 @@ def run(chapters=C.SAMPLE_CHAPTERS, base=C.OLLAMA_BASE, model=C.EXTRACT_MODEL,
     n_fts = build_fts(conn)
 
     n_vec = 0
-    if os.environ.get("EMBED_OFF") == "1":
-        print(f"{tag}[6/6] 向量索引跳过 (EMBED_OFF=1, 省本地CPU, FTS 检索不受影响)")
+    import config_schema as _CS
+    if _CS.get("embed.off"):
+        print(f"{tag}[6/6] 向量索引跳过 (embed.off=1, 省本地CPU, FTS 检索不受影响)")
     else:
         print(f"{tag}[6/6] bge-m3 向量索引 (RAG) ...")
         try:
