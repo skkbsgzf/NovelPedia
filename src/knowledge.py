@@ -13,6 +13,7 @@ knowledge.py —— 卷积式知识库(Stage1)
 import sys
 import os
 import json
+import re
 import datetime
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -166,6 +167,28 @@ KB_USER = """下面是第{chapter_no}章一个场景的抽取结果(人物/who, 
 只输出 JSON 数组。"""
 
 
+def _parse_kb_list(raw):
+    """容错解析 KB 的数组输出(数组不能用 json_object 模式, dots.ai 会回 {}; 兼容围栏/包装)。"""
+    if not raw:
+        return []
+    s = str(raw).strip()
+    if s.startswith("```"):
+        s = re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", s).strip()
+    try:
+        d = json.loads(s)
+        if isinstance(d, list):
+            return d
+        if isinstance(d, dict):
+            for k in ("entities", "data", "result"):
+                if isinstance(d.get(k), list):
+                    return d[k]
+            if d.get("name"):
+                return [d]
+        return []
+    except Exception:
+        return []
+
+
 def extract_entities(scene, base, model, who, where, actinfo, notes):
     """调 LLM 从场景抽实体信息增量。返回 [(delta_dict), ...], 失败返回 []。"""
     import json as _j
@@ -180,17 +203,9 @@ def extract_entities(scene, base, model, who, where, actinfo, notes):
         where=str(where or "未明示"),
     )
     try:
-        raw = llm_client.chat(KB_SYSTEM, user, json_mode=True, num_predict=1500,
+        raw = llm_client.chat(KB_SYSTEM, user, json_mode=False, num_predict=1500,
                               temperature=0.2)[0]
-        d = _j.loads(raw)
-        if isinstance(d, dict):
-            for k in ("entities", "data", "result"):
-                if isinstance(d.get(k), list):
-                    d = d[k]
-                    break
-        if not isinstance(d, list):
-            return []
-        return [x for x in d if isinstance(x, dict)]
+        return [x for x in _parse_kb_list(raw) if isinstance(x, dict)]
     except Exception:
         return []
 

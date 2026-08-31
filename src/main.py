@@ -119,29 +119,34 @@ def run(chapters=C.SAMPLE_CHAPTERS, base=C.OLLAMA_BASE, model=C.EXTRACT_MODEL,
             f"(total={cov['total']} covered={cov['covered']} preamble={cov['preamble']})")
 
     # ---- 卷积式知识库 (Stage1: 逐场景抽实体信息增量, 增量累积, 信息不丢) ----
+    # 注意: 每场景 1 次 LLM(10166 场景 ≈ 15h); kb_off=1 时跳过(全书跑批建议开)
+    import config_schema as _CS
     kb_path = C.KB_PATH
     kb_entities = 0
     kb_processed = 0
-    try:
-        import knowledge
-        # 把 records 的抽取结果(who/where/actinfo/notes)挂到场景
-        rec_map = {r["scene_id"]: r for r in records}
-        kb_scenes = []
-        for sc in scenes:
-            rec = rec_map.get(sc["scene_id"])
-            if not rec:
-                continue
-            kb_scenes.append({
-                "scene_id": sc["scene_id"], "chapter_no": sc["chapter_no"],
-                "who": rec.get("who", []), "where": rec.get("where", ""),
-                "actinfo": rec.get("actinfo", []), "notes": rec.get("notes", ""),
-            })
-        kb_cache_path = os.path.join(os.path.dirname(db_path),
-                                     f"kb_cache_{_NOVEL_SLUG}_{extract_mode}_{chapters}.json")
-        kb, kb_processed, kb_entities = knowledge.build_kb_from_scenes(
-            kb_scenes, base, model, kb_path)
-    except Exception as e:
-        print(f"{tag}[warn] 知识库卷积失败: {e}")
+    if _CS.get("knowledge.kb_off"):
+        print(f"{tag}[4b/6] 知识库卷积跳过 (kb_off=1, 省 {len(scenes)} 次 LLM 调用)")
+    else:
+        try:
+            import knowledge
+            # 把 records 的抽取结果(who/where/actinfo/notes)挂到场景
+            rec_map = {r["scene_id"]: r for r in records}
+            kb_scenes = []
+            for sc in scenes:
+                rec = rec_map.get(sc["scene_id"])
+                if not rec:
+                    continue
+                kb_scenes.append({
+                    "scene_id": sc["scene_id"], "chapter_no": sc["chapter_no"],
+                    "who": rec.get("who", []), "where": rec.get("where", ""),
+                    "actinfo": rec.get("actinfo", []), "notes": rec.get("notes", ""),
+                })
+            kb_cache_path = os.path.join(os.path.dirname(db_path),
+                                         f"kb_cache_{_NOVEL_SLUG}_{extract_mode}_{chapters}.json")
+            kb, kb_processed, kb_entities = knowledge.build_kb_from_scenes(
+                kb_scenes, base, model, kb_path)
+        except Exception as e:
+            print(f"{tag}[warn] 知识库卷积失败: {e}")
 
     print(f"{tag}[5/6] 构建 FTS5 检索 ...")
     n_fts = build_fts(conn)

@@ -293,6 +293,8 @@ def _register_core():
     _G = "knowledge"
     register("knowledge.scope", typ="json", default={"enabled": False, "domains": []},
              group=_G, desc="公版体系域作用域(默认不开放; --genre 动态加载)")
+    register("knowledge.kb_off", typ="bool", default=False, env="KB_OFF",
+             group=_G, desc="跳过 extract 阶段的卷积式知识库(每场景1次LLM≈15h; 产物无下游消费, 全书跑批建议开)")
 
 
 _register_core()
