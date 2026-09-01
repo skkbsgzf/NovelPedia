@@ -231,7 +231,19 @@ if not raw_chars or not sets_:
 
 # 同人多条目归并: 按 aliases 无向图求连通分量, 得到去重人物主表
 # (原数据把 邓恩/邓恩·史密斯/马车夫、阿尔杰/阿尔杰·威尔逊 等拆成多条)
-chars, name2canon = vizutil.merge_alias_components(raw_chars)
+# stage2 自带 aliases 是场景内指称(稀疏), 克莱恩系会被拆成 周明瑞/愚者/世界/
+# 格尔曼·斯帕罗/道恩·唐泰斯 多条 → 注入 entity_registry 的"双向互指"证据补齐
+# (克莱恩⇄周明瑞⇄愚者⇄格尔曼⇄世界⇄道恩 互为别名才并; 单向共指如 伦纳德→克莱恩
+#  是眷者噪音不并; 阿蒙⇄愚者 属剧情伪装, 黑名单排除), 归并后再 enrich 别名展示。
+ER_PATH = os.path.join(os.path.dirname(SRC), "stage1", "entity_registry.json")
+if os.path.exists(ER_PATH):
+    _er = vizutil.load_entity_alias_map(ER_PATH)
+    _extra = vizutil.entity_alias_edges(raw_chars, _er)
+else:
+    _er, _extra = {}, []   # 旧产物无 entity_registry 时退化为原行为
+chars, name2canon = vizutil.merge_alias_components(raw_chars, extra_edges=_extra)
+if _er:
+    chars = vizutil.enrich_aliases(chars, _er, skip_names={c["name"] for c in chars})
 personality = vizutil.merge_personality(personality, name2canon)
 pdim = {p.get("name"): p.get("dims", {}) for p in personality}
 

@@ -183,7 +183,18 @@ def main():
 
     # 同人多条目归并: 按 aliases 无向图求连通分量, 得到去重人物主表
     # (原数据把 邓恩/邓恩·史密斯/马车夫、阿尔杰/阿尔杰·威尔逊 等拆成多条)
-    chars, name2canon = vizutil.merge_alias_components(chars)
+    # stage2 自带 aliases 稀疏(克莱恩系被拆成 周明瑞/愚者/世界/格尔曼·斯帕罗/
+    # 道恩·唐泰斯) → 注入 entity_registry 双向互指证据补齐(同 build_detail);
+    # 阿蒙⇄愚者 属剧情伪装, 黑名单在 merge_alias_components 内默认生效。
+    ER_PATH = os.path.join(os.path.dirname(SRC), "stage1", "entity_registry.json")
+    if os.path.exists(ER_PATH):
+        _er = vizutil.load_entity_alias_map(ER_PATH)
+        _extra = vizutil.entity_alias_edges(chars, _er)
+    else:
+        _er, _extra = {}, []
+    chars, name2canon = vizutil.merge_alias_components(chars, extra_edges=_extra)
+    if _er:
+        chars = vizutil.enrich_aliases(chars, _er, skip_names={c["name"] for c in chars})
 
     # 别名映射: 所有别名-> 主名(含合并后各成员自身名); 先铺实体表(人物)再叠加角色自身
     alias2main = dict(fb_alias)

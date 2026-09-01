@@ -38,3 +38,6 @@ __pycache__/
 
 # 编辑器自动备份
 *.bak_*
+
+# 本地 agent 人设（内部协作文件, 不入库）
+AGENTS.md

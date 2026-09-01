@@ -211,8 +211,9 @@ pedia/
       viz: 单文件自包含 index.html（零外部依赖）
 ```
 
-- **实体归一化先行**：Stage1 Pass0 用 `entity_registry` 每章一次 LLM 抽稳定实体+别名，下游 alias 图 union-find 归并——「克莱恩/周明瑞/愚者」同一实体的核心能力
+- **实体归一化先行**：Stage1 Pass0 用 `entity_registry` 每章一次 LLM 抽稳定实体+别名，下游 alias 图 union-find 归并——「克莱恩/周明瑞/愚者」同一实体的核心能力。归并采用**双向互指**证据（a 是 b 的别名且 b 是 a 的别名才连，过滤眷者/共指噪音）+ 剧情伪装黑名单（阿蒙⇄愚者）
 - **明线轻量抽取**：Stage1 逐场景轻量抽取（0 推理，token 硬上限）；深度推理（暗线/剧情推理/拉片标注）已迁闭源 studio
+- **回归测试**：`python -m unittest discover -s tests -v`（实体归一化硬验收：克莱恩 8 马甲单节点、独立角色零误并；无产物数据时自动 skip）
 - **质疑指数** `doubt_index`：控制挖掘的思考深度（见 [docs/doubt_index_design.md](docs/doubt_index_design.md)）
 - **⚠️ 云端深度思考必须关**：dots.ai/GLM 默认开 thinking 时只返回 `reasoning_content`（token 虚高 6 倍）。`llm_client.py` 已内置双保险关闭（`thinking.disabled` + `chat_template_kwargs.enable_thinking:false`）
 - **输入省 42% token**：抽取层产出 actinfo JSON 流比 TXT 原文直出更省
