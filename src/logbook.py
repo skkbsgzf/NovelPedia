@@ -31,7 +31,7 @@ _LOCK = threading.Lock()
 def _logs_path():
     global _LOGS_DIR
     if _LOGS_DIR is None:
-        # 日志统一放 novel_pipeline/logs/
+        # 日志统一放 pedia/logs/
         _LOGS_DIR = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
         os.makedirs(_LOGS_DIR, exist_ok=True)

@@ -1,0 +1,753 @@
+{
+  "1": [
+    {
+      "canonical": "克莱恩·莫雷蒂",
+      "aliases": [
+        "克莱恩"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "左轮手枪",
+      "aliases": [
+        "左轮枪"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "赫密斯文",
+      "aliases": [
+        "赫密斯文字"
+      ],
+      "category": "体系"
+    },
+    {
+      "canonical": "原木书桌",
+      "aliases": [
+        "书桌"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "墨水瓶",
+      "aliases": [
+        "墨水瓶"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "钢笔",
+      "aliases": [
+        "钢笔"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "壁灯",
+      "aliases": [
+        "壁灯"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "穿衣镜",
+      "aliases": [
+        "穿衣镜"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "棕门",
+      "aliases": [
+        "棕门"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "高低床",
+      "aliases": [
+        "高低床"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "橱柜",
+      "aliases": [
+        "橱柜"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "煤炉厨具",
+      "aliases": [
+        "煤炉厨具"
+      ],
+      "category": "物品"
+    }
+  ],
+  "2": [
+    {
+      "canonical": "手枪",
+      "aliases": [
+        "转轮手枪"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "铜便士",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "瓦斯计费器",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "肥皂",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "毛巾",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "弹头",
+      "aliases": [
+        "子弹头"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "弹壳",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "转轮",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "《秦汉秘传方术纪要》",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "转运仪式",
+      "aliases": [],
+      "category": "体系"
+    },
+    {
+      "canonical": "镜子",
+      "aliases": [
+        "视镜"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "煤气灯",
+      "aliases": [],
+      "category": "物品"
+    }
+  ],
+  "3": [
+    {
+      "canonical": "克莱恩",
+      "aliases": [
+        "克莱恩"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "梅丽莎",
+      "aliases": [
+        "梅丽莎"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "周明瑞",
+      "aliases": [
+        "周明瑞"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "怀表",
+      "aliases": [
+        "怀表"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "管道阀门",
+      "aliases": [
+        "管道阀门"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "壁灯",
+      "aliases": [
+        "壁灯"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "左轮手枪",
+      "aliases": [
+        "左轮手枪"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "抽屉",
+      "aliases": [
+        "抽屉"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "纱帽",
+      "aliases": [
+        "纱帽"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "提包",
+      "aliases": [
+        "提包"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "廷根技术学校",
+      "aliases": [
+        "廷根技术学校"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "豌豆炖羔羊肉",
+      "aliases": [
+        "豌豆炖羔羊肉"
+      ],
+      "category": "食物"
+    }
+  ],
+  "4": [
+    {
+      "canonical": "克莱恩",
+      "aliases": [
+        "克莱恩"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "温蒂·斯林",
+      "aliases": [
+        "温蒂·斯林"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "班森",
+      "aliases": [
+        "班森"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "罗塞尔·古斯塔夫",
+      "aliases": [
+        "罗塞尔·古斯塔夫"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "教堂",
+      "aliases": [
+        "教堂"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "维多利亚风格正装",
+      "aliases": [
+        "维多利亚风格正装"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "手枪",
+      "aliases": [
+        "手枪"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "一苏勒纸币",
+      "aliases": [
+        "一苏勒纸币"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "黑麦面包",
+      "aliases": [
+        "黑麦面包"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "莴苣与肉类市场",
+      "aliases": [
+        "莴苣与肉类市场"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "《谷物法案》",
+      "aliases": [
+        "《谷物法案》"
+      ],
+      "category": "体系"
+    },
+    {
+      "canonical": "塔罗",
+      "aliases": [
+        "塔罗"
+      ],
+      "category": "体系"
+    }
+  ],
+  "5": [
+    {
+      "canonical": "周明瑞",
+      "aliases": [
+        "周"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "塔罗牌",
+      "aliases": [
+        "塔罗",
+        "魔术师等主牌"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "左轮",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "纸币",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "手枪",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "羔羊肉",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "豌豆",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "卷心菜",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "帐篷",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "市场",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "古弗萨克文",
+      "aliases": [],
+      "category": "语言"
+    },
+    {
+      "canonical": "鲁",
+      "aliases": [],
+      "category": "语言"
+    }
+  ],
+  "6": [
+    {
+      "canonical": "神秘先生",
+      "aliases": [
+        "神秘者"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "周明瑞",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "奥黛丽",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "深蓝头发的男子",
+      "aliases": [
+        "深蓝发男子"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "深红",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "序列9",
+      "aliases": [
+        "序列九"
+      ],
+      "category": "体系"
+    },
+    {
+      "canonical": "魔药配方",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "海眷者",
+      "aliases": [],
+      "category": "体系"
+    },
+    {
+      "canonical": "观众",
+      "aliases": [],
+      "category": "体系"
+    },
+    {
+      "canonical": "鬼鲨血",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "青铜长桌",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "神殿",
+      "aliases": [
+        "神殿场景"
+      ],
+      "category": "地点"
+    }
+  ],
+  "7": [
+    {
+      "canonical": "愚者",
+      "aliases": [
+        "愚者先生"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "倒吊人",
+      "aliases": [
+        "阿尔杰"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "奥黛丽",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "周明瑞",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "塔罗会",
+      "aliases": [],
+      "category": "组织"
+    },
+    {
+      "canonical": "普利兹港",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "鬼鲨血",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "罗塞尔大帝",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "塔罗牌",
+      "aliases": [
+        "神之途径纸牌"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "克莱恩",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "观众",
+      "aliases": [],
+      "category": "体系"
+    },
+    {
+      "canonical": "网络交友平台",
+      "aliases": [],
+      "category": "体系"
+    }
+  ],
+  "8": [
+    {
+      "canonical": "帆船",
+      "aliases": [
+        "船"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "船舱",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "阿尔杰",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "中年男子",
+      "aliases": [
+        "男子"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "船长",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "贝克兰德",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "皇后区",
+      "aliases": [],
+      "category": "地点"
+    },
+    {
+      "canonical": "铜镜",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "奥黛丽",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "霍尔伯爵",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "吉尼娅太太",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "安妮",
+      "aliases": [],
+      "category": "人物"
+    }
+  ],
+  "9": [
+    {
+      "canonical": "黑麦面包",
+      "aliases": [
+        "主食"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "银白怀表",
+      "aliases": [
+        "怀表"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "土豆",
+      "aliases": [
+        "土豆"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "嫩豌豆",
+      "aliases": [
+        "豌豆"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "盐",
+      "aliases": [
+        "盐"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "炉子",
+      "aliases": [
+        "炉"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "水",
+      "aliases": [
+        "水"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "汤",
+      "aliases": [
+        "汤"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "笔记",
+      "aliases": [
+        "笔记"
+      ],
+      "category": "物品"
+    },
+    {
+      "canonical": "第四纪",
+      "aliases": [
+        "第四纪"
+      ],
+      "category": "体系"
+    },
+    {
+      "canonical": "古弗萨克语变种",
+      "aliases": [
+        "古弗萨克语"
+      ],
+      "category": "体系"
+    },
+    {
+      "canonical": "安提哥努斯家族",
+      "aliases": [
+        "安提哥努斯"
+      ],
+      "category": "组织"
+    }
+  ],
+  "10": [
+    {
+      "canonical": "蒙巴顿",
+      "aliases": [
+        "比奇·蒙巴顿"
+      ],
+      "category": "人物"
+    },
+    {
+      "canonical": "克莱恩",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "韦尔奇·麦格文",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "娜娅",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "灰眸警官",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "年轻警官",
+      "aliases": [],
+      "category": "人物"
+    },
+    {
+      "canonical": "比奇",
+      "aliases": [
+        "比奇·蒙巴顿"
+      ],
+      "category": "地点"
+    },
+    {
+      "canonical": "鲁恩王国",
+      "aliases": [],
+      "category": "体系"
+    },
+    {
+      "canonical": "警察",
+      "aliases": [
+        "治安官"
+      ],
+      "category": "组织"
+    },
+    {
+      "canonical": "左轮",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "煤块水壶",
+      "aliases": [],
+      "category": "物品"
+    },
+    {
+      "canonical": "笔记",
+      "aliases": [],
+      "category": "物品"
+    }
+  ]
+}

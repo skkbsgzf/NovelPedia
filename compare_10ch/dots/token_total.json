@@ -1,0 +1,13 @@
+{
+  "prompt_total": 7822,
+  "completion_total": 3045,
+  "by_model": {
+    "dots3-note-prev": {
+      "prompt": 7822,
+      "completion": 3045,
+      "calls": 10
+    }
+  },
+  "calls": 10,
+  "runs": 0
+}

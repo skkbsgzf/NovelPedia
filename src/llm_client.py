@@ -18,9 +18,11 @@ llm_client.py —— 统一 LLM 调用层（本地 Ollama / 云端 OpenAI 兼容
                                       base=..., role=...)
 """
 import os
+import sys
 import json
 import time
 import urllib.request
+import threading
 
 import config as C
 
@@ -74,7 +76,7 @@ AUTH_SCHEME = os.getenv("LLM_AUTH_SCHEME", "bearer").lower()
 ENABLE_THINKING = os.getenv("LLM_ENABLE_THINKING", "false").lower() in ("1", "true", "yes")
 NUM_CTX = int(os.getenv("LLM_NUM_CTX", "4096"))
 TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
-MAX_ATTEMPTS = 4
+MAX_ATTEMPTS = 6
 
 # 质疑指数 (0-1), 控制思考深度和思维链触发频率
 DOUBT_INDEX = float(os.getenv("LLM_DOUBT_INDEX", "0.7"))
@@ -118,13 +120,73 @@ def load_config(config_path=None):
         return {}
 
 
+# ---- token 计量钩子 ----
+# 两层: (1) 持久累加器 TOKEN_TOTAL 始终落盘 logs/token_total.json(不依赖 panel 注入,
+#         供全量跑批真实采集 token 消耗量); (2) 可选 TOKEN_METER 注入(panel 实时显示用)。
+# 签名: TOKEN_METER(model, prompt_tokens, completion_tokens)
+TOKEN_METER = None
+
+# 进程内累加器(线程安全), 每次 chat 后原子落盘到 logs/token_total.json
+_TOKEN_LOCK = threading.Lock()
+TOKEN_TOTAL = {"prompt_total": 0, "completion_total": 0, "by_model": {}, "calls": 0, "runs": 0}
+
+
+def _token_persist():
+    """原子写 logs/token_total.json (崩溃安全, 全量跑批可随时读取累计)。"""
+    try:
+        d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs")
+        os.makedirs(d, exist_ok=True)
+        p = os.path.join(d, "token_total.json")
+        tmp = p + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(TOKEN_TOTAL, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, p)
+    except Exception:
+        pass
+
+
+def reset_token_meter():
+    """清空累计(开始一次新的全量测试前调用), 使 token_total.json 仅含本次运行数据。"""
+    global TOKEN_TOTAL
+    with _TOKEN_LOCK:
+        TOKEN_TOTAL = {"prompt_total": 0, "completion_total": 0, "by_model": {}, "calls": 0, "runs": 0}
+        _token_persist()
+
+
+def set_token_meter(fn):
+    """panel 启动后注入：fn(model, prompt_tokens, completion_tokens)。"""
+    global TOKEN_METER
+    TOKEN_METER = fn
+
+
+def _record_usage(model, prompt_tok, completion_tok):
+    pt = prompt_tok or 0
+    ct = completion_tok or 0
+    # 始终累加并落盘(持久计量, 支撑全量跑批 token 采集)
+    with _TOKEN_LOCK:
+        TOKEN_TOTAL["prompt_total"] += pt
+        TOKEN_TOTAL["completion_total"] += ct
+        TOKEN_TOTAL["calls"] += 1
+        bm = TOKEN_TOTAL["by_model"].setdefault(
+            model or "unknown", {"prompt": 0, "completion": 0, "calls": 0})
+        bm["prompt"] += pt
+        bm["completion"] += ct
+        bm["calls"] += 1
+        _token_persist()
+    if TOKEN_METER is not None:
+        try:
+            TOKEN_METER(model, pt, ct)
+        except Exception:
+            pass
+
+
 def _resolve_model(model):
     # 优先级: LLM_MODEL 环境变量 > 调用方传入 > 配置默认
     return os.getenv("LLM_MODEL") or model or C.EXTRACT_MODEL
 
 
 def chat(system, user, *, model=None, num_ctx=None, temperature=None,
-         json_mode=True, num_predict=2048, base=None, timeout=900, role=None):
+         json_mode=True, num_predict=2048, base=None, timeout=120, role=None):
     """统一对话接口, 返回 (content, prompt_tokens, completion_tokens)。
 
     role: 管线阶段标签。命中 LLM_ROLE_MODELS 时, 该次调用切换到对应预设
@@ -133,30 +195,57 @@ def chat(system, user, *, model=None, num_ctx=None, temperature=None,
     """
     backend, api_key, scheme = BACKEND, API_KEY, AUTH_SCHEME
     rp = get_preset(ROLE_MODELS.get(role)) if role else None
+    # 修复①: 直接传 model 名也应驱动对应 preset (原本只有 role 能切 backend)
+    if rp is None and model and get_preset(model):
+        rp = get_preset(model)
+    # 修复②: model 为 None 时复活 models.json 的 default_backend (消除死配置);
+    #        若该默认是云端且缺 key, 透明降级到本地 ollama 并打印告警(不再静默)
+    if rp is None and model is None and not role:
+        dp = get_preset(DEFAULT_PRESET)
+        if dp:
+            need_key = dp.get("backend") != "ollama" and not (dp.get("api_key") or API_KEY)
+            if need_key:
+                print(f"\u26a0\ufe0e default_backend={DEFAULT_PRESET!r} 需要 API key 但当前缺失，"
+                      f"已透明降级到本地 ollama（非静默）。设置 LLM_API_KEY 或显式 --model 可切换。",
+                      file=sys.stderr)
+            else:
+                rp = dp
+                model = DEFAULT_PRESET
     if rp:
         backend = rp.get("backend", BACKEND)
         base = rp.get("base_url", base or BASE_URL)
-        api_key = rp.get("api_key") or API_KEY
+        # dots3-note 用独立凭据变量, 避免与 GLM 的 LLM_API_KEY 互相污染
+        api_key = rp.get("api_key") or (os.getenv("DOTSAI_API_KEY") if model == "dots3-note" else API_KEY)
         scheme = rp.get("auth_scheme", AUTH_SCHEME)
         model = rp.get("model", model)
         if num_ctx is None and rp.get("ctx"):
             num_ctx = int(rp["ctx"])
     model = _resolve_model(model)
+    # 修复③: 显式指定了云端模型/角色却缺 key -> 直接报错, 绝不静默降级到本地小模型
+    if backend != "ollama" and not api_key:
+        raise RuntimeError(
+            f"目标模型 {model!r} 走 {backend} 后端但缺少 API key。"
+            "请设置环境变量 LLM_API_KEY 或在 preset 中配置 api_key；"
+            "若要用本地模型请显式传入 model='qwen3-8b'。"
+        )
     num_ctx = num_ctx or NUM_CTX
     temperature = temperature if temperature is not None else TEMPERATURE
     if backend == "openai":
         url = _openai_url(base or BASE_URL)
-        return _post_openai(url, system, user, model, temperature,
-                            json_mode, num_predict, timeout, api_key, scheme)
-    if backend == "anthropic":
-        return _post_anthropic(base or BASE_URL, system, user, model, temperature,
-                               json_mode, num_predict, timeout, api_key)
-    if backend == "google":
-        return _post_google(base or BASE_URL, system, user, model, temperature,
-                            json_mode, num_predict, timeout, api_key)
-    url = (base or BASE_URL).rstrip("/") + "/api/chat"
-    return _post_ollama(url, system, user, model, num_ctx, temperature,
-                        json_mode, num_predict, timeout)
+        out = _post_openai(url, system, user, model, temperature,
+                           json_mode, num_predict, timeout, api_key, scheme)
+    elif backend == "anthropic":
+        out = _post_anthropic(base or BASE_URL, system, user, model, temperature,
+                              json_mode, num_predict, timeout, api_key)
+    elif backend == "google":
+        out = _post_google(base or BASE_URL, system, user, model, temperature,
+                           json_mode, num_predict, timeout, api_key)
+    else:
+        url = (base or BASE_URL).rstrip("/") + "/api/chat"
+        out = _post_ollama(url, system, user, model, num_ctx, temperature,
+                           json_mode, num_predict, timeout)
+    _record_usage(model, out[1], out[2])
+    return out
 
 
 def _openai_url(base):
@@ -180,7 +269,7 @@ def _post(url, payload, headers, timeout, ctx=""):
         except urllib.error.HTTPError as e:
             # 限流(429)/服务端错误(5xx): 退避后重试, 不立即失败
             if e.code in (429, 500, 502, 503) and attempt < MAX_ATTEMPTS - 1:
-                time.sleep(5 * (attempt + 1))
+                time.sleep(min(60, 10 * (attempt + 1)))
                 continue
             _hint = {
                 400: "请求格式被厂商拒绝(模型不支持 JSON 模式时会降级重试)",

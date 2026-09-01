@@ -13,18 +13,15 @@ cli.py ——小说拆书工程统一命令行入口
 
 任务:
   extract       Stage1 分场景抽取(读小说TXT -> SQLite)
-  feel          Stage1 主agent读感(资深读者) + 设定子agent图谱 (含 doubt_index 思考深度)
-  collect       Stage1 四维并行收集(设定/暗线/人物/文风采样)
-  mine          Stage2 四维并行挖掘(剧情推理/设定强化/人物简历/文风分析)
-  annotate      创作解析标注(关键场景 plot_function/note, 拉片画布🎬)
+  collect       Stage1 三维度并行收集(设定/人物/文风采样)
+  mine          Stage2 三维度并行挖掘(设定强化/人物简历/文风分析)
   review        全板块编辑评述(专业编辑视角 habits/strengths/weaknesses/summary)
   build         Stage2 LLM 直出 章纲/人物/设定/总结 (JSON 产物)
   personality   生成人物性格六维向量 (雷达图数据 需 LLM)
   graph         知识图谱 (角色关系 + 设定, 自包含HTML)
   detail        拆书详情页(四Tab 全景, 自包含HTML)
-  report        本地 vs 云端 对比报告
   rag "<问题>"  RAG 问答
-  viz        一键：详情页 + 图谱 + 报告 + 导航页 -> outputs/<小说名>_<日期>/
+  viz          一键: 数据源(JSON) + pedia 导航页 -> outputs/<小说名>_<日期>/index.html
   analyze       跑批日志健康度分析(H1-H5)
 
 全局参数:
@@ -179,30 +176,31 @@ def cmd_extract(args, env):
                            "--extract-mode", args.extract_mode], env)
 
 
-def cmd_feel(args, env):
-    """Stage1 主agent读感 + 设定子agent图谱。doubt_index 从 llm.config.json 顶层读取。"""
-    argv = ["--chapters", str(args.chapters)]
-    if args.doubt_index is not None:
-        argv += ["--doubt-index", str(args.doubt_index)]
-    return run("stage1_feel.py", argv, env)
-
-
 def cmd_collect(args, env):
-    """Stage1 四维度并行收集(设定/暗线/人物/文风采样)。--fresh: 全量重抽设定(删旧 settings_graph 增量)。
-    fresh 经注册表 collect.fresh 统一透传(export_env 自动写 COLLECT_FRESH)。"""
+    """Stage1 三维度并行收集(设定/人物/文风采样)。--fresh: 全量重抽设定(删旧 settings_graph 增量)。
+    fresh 经注册表 collect.fresh 统一透传(export_env 自动写 COLLECT_FRESH)。
+    --only/--force: 可插拔单模块重跑覆盖(透传 stage1_collect.py)。"""
     argv = ["--chapters", str(args.chapters), "--parallel", str(args.parallel or 4)]
     if args.doubt_index is not None:
         argv += ["--doubt-index", str(args.doubt_index)]
+    if getattr(args, "only", None):
+        argv += ["--only", args.only]
+    if getattr(args, "force", False):
+        argv += ["--force"]
     if getattr(args, "fresh", False):
         print("[collect] --fresh: 删除旧 settings_graph, 设定将全量重抽(不再增量归并)")
     return run("stage1_collect.py", argv, env)
 
 
 def cmd_mine(args, env):
-    """Stage2 四维度并行挖掘(剧情推理/设定强化/人物简历/文风分析)。"""
+    """Stage2 三维度并行挖掘(设定强化/人物简历/文风分析)。--only/--force 透传 stage2_mine.py。"""
     argv = ["--chapters", str(args.chapters), "--parallel", str(args.parallel or 4)]
     if args.doubt_index is not None:
         argv += ["--doubt-index", str(args.doubt_index)]
+    if getattr(args, "only", None):
+        argv += ["--only", args.only]
+    if getattr(args, "force", False):
+        argv += ["--force"]
     return run("stage2_mine.py", argv, env)
 
 
@@ -212,23 +210,6 @@ def cmd_build(args, env):
     return run("stage2.py",
                ["--chapters", str(args.chapters), "--all-outlines", "--characters",
                 "--settings", "--summary", "--out-dir", out], env)
-
-
-def cmd_annotate(args, env):
-    """创作解析标注(P2): 挑关键场景 -> LLM 标 plot_function/note -> stage1/scenes_annotations.json"""
-    import scene_annotator
-    s1 = args.src if args.src and os.path.isdir(args.src) else None
-    if not s1:
-        import stage2_mine as M
-        s1 = M._latest_stage1_dir()
-    print(f"标注目标 stage1: {s1}")
-    r = scene_annotator.annotate_file(
-        os.path.join(s1, "scenes_meta.json"),
-        os.path.join(s1, "clue_graph.json"),
-        os.path.join(s1, "scenes_annotations.json"),
-        None, None)
-    print(f"✅ 标注完成: {len(r['scenes'])} 个关键场景 -> scenes_annotations.json")
-    return 0
 
 
 def cmd_review(args, env):
@@ -264,16 +245,19 @@ def cmd_detail(args, env):
                ["--src", args.src or args.backend, "--out", os.path.join(OUTPUT, "detail_data.json")], env)
 
 
-def cmd_report(args, env):
-    return run("final_report.py", [], env)
-
-
 def cmd_rag(args, env):
     return run("rag_qa.py", ["--chapters", str(args.chapters), args.question], env)
 
 
 def cmd_stage3(args, env):
-    """一键：拆人/拆章/设定关系 -> outputs/<小说名_<日期>/ + index.html 单页工作台"""
+    """一键 pedia: 数据源 -> outputs/<小说名>_<日期>/index.html (wiki 式单页)
+    产物:
+      - index.html        pedia 主页面(自包含, 内嵌 detail/graph/personality/clue 数据)
+      - detail_data.json  人物/设定/场景/文风结构化数据(供二次开发)
+      - graph_data.json   关系图谱 nodes/edges(供二次开发)
+      - personality.json  人物性格六维
+    注: 旧版另有 book_detail.html / knowledge_graph.html 两个独立页面,
+        因与 pedia 功能重叠且图谱已内联, 已废弃。"""
     src_dir = args.src or args.backend
     os.makedirs(OUTPUT, exist_ok=True)
     print(f"═══一键生成可视化产物 -> {os.path.relpath(OUTPUT, ROOT)} ═══")
@@ -303,15 +287,15 @@ def archive_stage3():
     # 注: 原为 `s1_dir = s1_dir`(自赋值, 无全局定义时会抛 UnboundLocalError),
     #     使本函数无法脱离 cmd_stage3 独立调用。改为显式默认 C.STAGE1_DIR。
     s1_dir = C.STAGE1_DIR
-    if not os.path.exists(os.path.join(s1_dir, "clue_graph.json")):
+    if not os.path.exists(os.path.join(s1_dir, "character_facts.json")):
         outputs = os.path.join(C.PROJECT_ROOT, "outputs")
         cands = []
         if os.path.exists(outputs):
             for d in os.listdir(outputs):
                 p = os.path.join(outputs, d, "stage1")
-                if os.path.exists(os.path.join(p, "clue_graph.json")):
+                if os.path.exists(os.path.join(p, "character_facts.json")):
                     try:
-                        mt = os.path.getmtime(os.path.join(p, "clue_graph.json"))
+                        mt = os.path.getmtime(os.path.join(p, "character_facts.json"))
                     except Exception:
                         mt = 0
                     cands.append((mt, p))
@@ -348,19 +332,9 @@ def archive_stage3():
                 feelings = json.load(f)
         except Exception:
             pass
-    # 线索图谱(结论/证据/簇/实体) —— 剥掉向量(98%体积), 只留结构
+    # 线索图谱: 已从 pedia 剥离(深度推理迁至 studio), 此处只保留空壳占位, 不读取
     clue_graph = {"schema": 1, "evidence": [], "clusters": [], "conclusions": [],
                   "entities": [], "relations": []}
-    clue_path = os.path.join(s1_dir, "clue_graph.json")
-    if os.path.exists(clue_path):
-        try:
-            with open(clue_path, encoding="utf-8") as f:
-                cg = json.load(f)
-            for e in cg.get("evidence", []):
-                e.pop("vector", None)
-            clue_graph = cg
-        except Exception:
-            pass
     # 拉片画布数据: scenes_meta(截断原文/预计算情绪/证据锚点) + 伏笔-回收链
     scenes_meta = []
     sm_path = os.path.join(s1_dir, "scenes_meta.json")
@@ -370,17 +344,15 @@ def archive_stage3():
                 scenes_meta = json.load(f).get("scenes", [])
         except Exception:
             pass
-    ev_by_scene = {}
-    for _e in clue_graph.get("evidence", []):
-        ev_by_scene.setdefault(str(_e.get("scene_id")), []).append(_e.get("id"))
+    ev_by_scene = {}   # 暗线证据已剥离, 场景不再挂证据锚点
     try:
         import style_sampler as _ss
         for _s in scenes_meta:
             rt = (_s.get("raw_text") or "")
             _s["raw_text"] = rt[:150]                       # 控制注入体积
             _s["sentiment"] = _ss._sentiment(rt)
-            _s["n_ev"] = len(ev_by_scene.get(str(_s.get("scene_id")), []))
-            _s["ev_ids"] = ev_by_scene.get(str(_s.get("scene_id")), [])[:3]
+            _s["n_ev"] = 0
+            _s["ev_ids"] = []
     except Exception:
         pass
     # 伏笔-回收链: 同一簇证据跨章 >=5 章
@@ -493,12 +465,10 @@ def archive_stage3():
     edges = graph.get("edges") or []
     book = detail.get("book") or {}
     total_chars = book.get("totalChapters", len(chapters))
-    n_concl = len(clue_graph.get("conclusions", []))
-    n_ev = len(clue_graph.get("evidence", []))
     n_sg_term = len(settings_graph.get("terms", []))
     n_sg_rel = len(settings_graph.get("relations", []))
     meta = (f"{total_chars} 章 · {len(resumes)} 人物简历 · {n_sg_term} 设定词条 · "
-            f"{n_sg_rel} 设定关系 · {n_concl} 推理结论 · {n_ev} 暗线证据 · "
+            f"{n_sg_rel} 设定关系 · "
             f"{len(settings_system.get('layers', [])) if settings_system else 0} 设定层级")
 
     def _js(v):
@@ -588,14 +558,13 @@ def interactive():
     except Exception:
         backend = names[0]
     print(f"\n选择任务:")
-    tasks = [("extract", "Stage1 抽取"), ("collect", "Stage1 四维收集(设定/暗线/人物/文风)"),
-             ("mine", "Stage2 四维挖掘(推理/设定强化/简历/文风)"),
-             ("annotate", "创作解析标注(关键场景🎬)"),
+    tasks = [("extract", "Stage1 抽取"), ("collect", "Stage1 三维度收集(设定/人物/文风)"),
+             ("mine", "Stage2 三维度挖掘(设定强化/简历/文风)"),
              ("review", "全板块编辑评述(专业编辑视角)"),
              ("build", "Stage2 直出(章纲/人物/设定)"),
              ("personality", "性格六维"), ("graph", "知识图谱"),
              ("detail", "拆书详情页"), ("viz", "一键生成可视化"),
-             ("report", "对比报告"), ("rag", "RAG 问答")]
+             ("rag", "RAG 问答")]
     for i, (_, label) in enumerate(tasks, 1):
         print(f"  {i}. {label}")
     try:
@@ -613,13 +582,32 @@ def interactive():
 
 
 # ---------------- 入口 ----------------
+def cmd_panel(args, env):
+    """进度面板: 子命令 demo|render|errors|tokens (转发 src/panel.py)。"""
+    sub = (args.question or "render").strip() or "render"
+    if sub not in ("demo", "render", "errors", "tokens"):
+        print(f"[panel] 未知子命令: {sub} (可选: demo|render|errors|tokens)")
+        return 2
+    argv = [sub]
+    if args.run:
+        argv += ["--run", args.run]
+    if sub == "render" and getattr(args, "watch", False):
+        argv += ["--watch"]
+    if sub == "demo" and getattr(args, "no_watch", False):
+        argv += ["--no-watch"]
+    if sub == "errors" and getattr(args, "by_task", False):
+        argv += ["--by-task"]
+    return run("panel.py", argv, env)
+
+
 HANDLERS = {
-    "extract": cmd_extract, "feel": cmd_feel,
+    "extract": cmd_extract,
     "collect": cmd_collect, "mine": cmd_mine,
-    "annotate": cmd_annotate, "review": cmd_review,
+    "review": cmd_review,
     "build": cmd_build, "personality": cmd_personality,
-    "graph": cmd_graph, "detail": cmd_detail, "report": cmd_report,
+    "graph": cmd_graph, "detail": cmd_detail,
     "rag": cmd_rag, "viz": cmd_stage3, "analyze": cmd_analyze,
+    "panel": cmd_panel,
 }
 
 def list_backends():
@@ -674,10 +662,20 @@ def main():
                    help="场景级/简历并发数 (collect/mine 任务, 默认4)")
     p.add_argument("--fresh", action="store_true",
                    help="collect: 全量重抽设定(删除旧 settings_graph 增量, 全书重跑必须加)")
+    p.add_argument("--only", default=None,
+                   choices=["registry", "setting", "character", "style"],
+                   help="只重跑单个模块(失败重跑覆盖用; collect/mine 任务)")
+    p.add_argument("--force", action="store_true",
+                   help="强制覆盖已存在产物(collect/mine 任务)")
     p.add_argument("--log", default=None, help="analyze 任务: 指定日志 jsonl 路径(默认读最近会话 run_latest.jsonl)")
     p.add_argument("--genre", default=None,
                    help="小说类别(宫斗/修仙/诡秘/系统/灵异/都市…)。★global 通识库默认不加载; "
                         "指定后才按类别加载对应域作参考(补档/分类/候选), 与原文冲突一律以本次阅读到的为准")
+    p.add_argument("--run", default=None,
+                   help="panel 任务: run_id (读取 logs/run_<id>/progress.json)")
+    p.add_argument("--watch", action="store_true", help="panel render: 持续刷新进度")
+    p.add_argument("--no-watch", action="store_true", help="panel demo: 不实时渲染")
+    p.add_argument("--by-task", action="store_true", help="panel errors: 按任务聚合统计")
     a = p.parse_args()
     if a.list_backends:
         list_backends()
@@ -697,9 +695,11 @@ def main():
         for _e in _errs:
             print(f"  ✗ {_e}")
         sys.exit(2)
-    # analyze 不需要 LLM 后端(纯日志分析), 提前分发
+    # analyze / panel 不需要 LLM 后端(纯日志/进度分析), 提前分发
     if a.task == "analyze":
         sys.exit(cmd_analyze(a, {}) or 0)
+    if a.task == "panel":
+        sys.exit(cmd_panel(a, {}) or 0)
     cfg = load_cfg()
     resolved = _resolve_backend_name(a.backend)
     if resolved not in (cfg.get("presets") or {}):

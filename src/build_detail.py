@@ -18,7 +18,7 @@ build_detail.py ——构建「拆书详情页」全量数据(detail_data.json)
   style       : 文风统计(词频/句长/标点/特殊句式/修辞)
   perChStyle  : [{no, chars, avgLen, words: top25, sentence, punctuation, special, rhetoric}] 每章文风(支撑章节范围筛选
 
-产物: detail_data.json + book_detail.html (模板注入自包含
+产物: detail_data.json (pedia 的数据供给源, 不直接产出页面)
 """
 import os, re, json, sqlite3, sys, argparse
 from collections import Counter, defaultdict
@@ -78,10 +78,156 @@ def load(p, default=None):
     except Exception:
         return default if default is not None else {}
 
+
+def _stage1_fallback(SRC):
+    """新架构兼容: mine 不再产出旧式 stage2/characters.json|settings.json
+    (STAGE2_DIR 可能整个不存在, 产物散落在 stage1/), 导致 pedia 人物/设定板块读空。
+    缺失时从 stage1 现成产物补全:
+      - 人物: characters_resume.json(mine 产出 identity/trajectory/relations, 质量最高)
+              + entity_registry.json(别名, 供 merge_alias_components 归并同人)
+              + character_facts.json(appearances → 首次出现章)
+      - 设定: settings_graph.json(terms 自带 category/definition/first_seen/related),
+              按出现场景数取 top N 控制体积(全书设定过万, 全量会让 detail_data 膨胀数倍)
+    返回 (chars, sets_), 字段对齐旧 stage2 格式(中文键)。
+    """
+    import os as _os
+    s1 = _os.path.join(_os.path.dirname(SRC), "stage1")
+    chars, sets_ = [], []
+
+    # --- 别名表: canonical -> [aliases] ---
+    alias_map = {}
+    er_path = _os.path.join(s1, "entity_registry.json")
+    if _os.path.exists(er_path):
+        try:
+            er = json.load(open(er_path, encoding="utf-8"))
+            for lst in (er.values() if isinstance(er, dict) else []):
+                if not isinstance(lst, list):
+                    continue
+                for e in lst:
+                    if isinstance(e, dict) and e.get("category") == "人物":
+                        canon = str(e.get("canonical") or "").strip()
+                        if canon:
+                            alias_map[canon] = [str(a) for a in (e.get("aliases") or [])]
+        except Exception:
+            pass
+
+    # --- 首次出现章: character_facts.appearances = [[章, 场景], ...] ---
+    first_seen = {}
+    cf_path = _os.path.join(s1, "character_facts.json")
+    if _os.path.exists(cf_path):
+        try:
+            cf = json.load(open(cf_path, encoding="utf-8"))
+            for name, v in (cf.get("characters") or {}).items():
+                apps = (v or {}).get("appearances") or []
+                chs = [a[0] for a in apps if isinstance(a, (list, tuple)) and a
+                       and isinstance(a[0], int)]
+                if chs:
+                    first_seen[str(name).strip()] = min(chs)
+        except Exception:
+            pass
+
+    # --- 人物主体 ---
+    # 骨架取 character_facts 出场频次 top N: 只用 characters_resume 会踩坑——
+    # mine 目前只写了 16 份简历且选人是按出现顺序而非频次, 名单里混进
+    # "灰眸警官"/"黄发男子"/"中年警官" 这类临时称谓, 而真正的主角团
+    # (佛尔思/伦纳德/戴里克/嘉德丽雅…) 一个都没进。以频次为准才覆盖得到主要角色。
+    # resume 内容(identity/trajectory/relations)按名字回填; 缺 resume 的角色
+    # 用 doings(行为) 补关键事件、co_occurrences(共现) 补关系, 保证不空壳。
+    resume_idx = {}
+    cr_path = _os.path.join(s1, "characters_resume.json")
+    if _os.path.exists(cr_path):
+        try:
+            cr = json.load(open(cr_path, encoding="utf-8"))
+            for c in (cr.get("characters") or []):
+                if isinstance(c, dict) and str(c.get("name", "")).strip():
+                    resume_idx[str(c.get("name", "")).strip()] = c
+        except Exception:
+            pass
+
+    cf_path = _os.path.join(s1, "character_facts.json")
+    if _os.path.exists(cf_path):
+        try:
+            cf = json.load(open(cf_path, encoding="utf-8")).get("characters") or {}
+            top_n = int(_os.environ.get("DETAIL_TOP_CHARS", "80"))
+            min_app = int(_os.environ.get("DETAIL_MIN_APPEARANCES", "5"))
+            freq = {n: len((v or {}).get("appearances") or []) for n, v in cf.items()}
+            cand = [n for n, _f in sorted(freq.items(), key=lambda kv: -kv[1])[:top_n]]
+            # resume 里有深度内容、且确实出场过的角色也纳入(避免丢掉已生成的简历)
+            for nm in resume_idx:
+                if freq.get(nm, 0) >= min_app and nm not in cand:
+                    cand.append(nm)
+            for nm in cand:
+                v = cf.get(nm) or {}
+                r = resume_idx.get(nm) or {}
+                traj = str(r.get("trajectory") or "")
+                # 关系: 优先 resume 的语义关系, 否则用共现频次
+                rels = []
+                for rr in (r.get("relations") or []):
+                    if not isinstance(rr, dict):
+                        continue
+                    rn = str(rr.get("name", "")).strip()
+                    rd = str(rr.get("relation", "")).strip()
+                    if rn:
+                        rels.append(f"与{rn}: {rd}")
+                if not rels:
+                    co = v.get("co_occurrences") or {}
+                    rels = [f"与{c}: 共现{n}次"
+                            for c, n in sorted(co.items(), key=lambda kv: -kv[1])[:8]]
+                # 关键事件: 优先 trajectory, 否则取行为记录
+                events = [traj] if traj else [str(d) for d in (v.get("doings") or [])[:5]]
+                chars.append({
+                    "name": nm,
+                    "aliases": alias_map.get(nm, []),
+                    "身份": r.get("identity") or "",
+                    "首次出现章": first_seen.get(nm),
+                    "关键事件": events,
+                    "关系": rels,
+                    "弧光": traj,
+                })
+        except Exception:
+            pass
+
+    # --- 设定: settings_graph.json (按出现场景数取 top N) ---
+    sg_path = _os.path.join(s1, "settings_graph.json")
+    if _os.path.exists(sg_path):
+        try:
+            sg = json.load(open(sg_path, encoding="utf-8"))
+            terms = [t for t in (sg.get("terms") or []) if isinstance(t, dict)]
+            top_n = int(_os.environ.get("DETAIL_TOP_SETTINGS", "800"))
+            terms.sort(key=lambda t: len(t.get("source_scenes") or []), reverse=True)
+            for t in terms[:top_n]:
+                nm = str(t.get("name", "")).strip()
+                if not nm:
+                    continue
+                rel = [str(r.get("to")) for r in (t.get("related") or [])
+                       if isinstance(r, dict) and r.get("to")]
+                sets_.append({
+                    "name": nm, "type": t.get("category") or "",
+                    "description": t.get("definition") or "",
+                    "first_seen": t.get("first_seen"),
+                    "related": rel, "note": "",
+                })
+        except Exception:
+            pass
+
+    if chars or sets_:
+        print(f"[fallback] stage2 产物缺失, 已从 stage1 补全: "
+              f"人物 {len(chars)} / 设定 {len(sets_)}")
+    return chars, sets_
+
+
 raw_chars = load(os.path.join(SRC, "characters.json"), [])
 sets_ = load(os.path.join(SRC, "settings.json"), [])
 outlines = load(os.path.join(SRC, "outlines.json"), {})
 personality = load(os.path.join(C.OUTPUT_DIR, "personality.json"), [])
+
+# stage2 在新架构下可能整个不存在(产物散在 stage1/), 逐项用 fallback 补全
+if not raw_chars or not sets_:
+    _fb_chars, _fb_sets = _stage1_fallback(SRC)
+    if not raw_chars:
+        raw_chars = _fb_chars
+    if not sets_:
+        sets_ = _fb_sets
 
 # 同人多条目归并: 按 aliases 无向图求连通分量, 得到去重人物主表
 # (原数据把 邓恩/邓恩·史密斯/马车夫、阿尔杰/阿尔杰·威尔逊 等拆成多条)
@@ -100,22 +246,36 @@ def _tokenize(text):
         return [w for w in jieba.cut(text) if len(w) >= 2 and w not in STOP
                 and not re.search(r"[，。！？；：、“”‘’（）《》—…\s\dA-Za-z·]", w)]
     except Exception:
+        # 兜底路径性能说明(无 jieba 时对全书文本跑, 必须避免平方级):
+        #   1. 先按标点切分, 只对干净片段滑窗 —— 跳过跨标点窗口(原逻辑本就丢弃), 省掉
+        #      全书逐字符正则(300 万字 x 3 窗口 ≈ 900 万次 re.search)。
+        #   2. 去重改用「已保留词的全部子串集合」做 O(1) 命中, 替代
+        #      `any(w in k for k in kept)` 的 O(唯一词 x 保留词) 扫描(1308 章会卡死数十分钟)。
+        _BAD = re.compile(r"[，。！？；：、“”‘’（）《》—…\s\dA-Za-z·\ufeff]")
         out = []
-        for n in (4, 3, 2):
-            for i in range(len(text) - n + 1):
-                w = text[i:i + n]
-                if re.search(r"[，。！？；：、“”‘’（）《》—…\s\dA-Za-z·\ufeff]", w):
+        for seg in _BAD.split(text):
+            if len(seg) < 2:
+                continue
+            for n in (4, 3, 2):
+                if len(seg) < n:
                     continue
-                if any(c in STOP for c in w):
-                    continue
-                out.append(w)
+                for i in range(len(seg) - n + 1):
+                    w = seg[i:i + n]
+                    if any(c in STOP for c in w):
+                        continue
+                    out.append(w)
         cnt = Counter(out)
         # 长度降序处理, 短词若被已保留的长词包含则丢弃("周明"/"明瑞" 之类碎片)
         kept = []
+        subidx = set()          # 已保留词的所有子串(长度>=2), 命中即碎片
         for w, n in sorted(cnt.items(), key=lambda kv: (-len(kv[0]), -kv[1])):
-            if n < 5 or any(w in k for k, _ in kept):
+            if n < 5 or w in subidx:
                 continue
             kept.append((w, n))
+            L = len(w)
+            for i in range(L):
+                for j in range(i + 2, L + 1):
+                    subidx.add(w[i:j])
         return [w for w, _ in kept]
 
 def style_of(text):
@@ -248,6 +408,10 @@ TYPE_CATEGORY = {
     "组织": "势力", "物品": "物品",
     "概念": "世界观", "力量": "世界观", "地点": "世界观",
     "人物身份": "世界观",
+    # 补齐 settings_graph.terms 的实际 category 取值:
+    # 缺这三类时 top800 里有 370 个设定会落进"其他"(世界观179/力量体系106/规则85)
+    "世界观": "世界观", "力量体系": "世界观", "规则": "世界观",
+    "体系": "世界观", "能力": "世界观",
 }
 CAT_ORDER = ["世界观", "势力", "物品", "其他"]
 settings_list = []
@@ -365,18 +529,8 @@ os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False)
 
-# ---------------- 9. 注入模板生成 book_detail.html ----------------
-TPL = os.path.join(os.path.dirname(__file__), "detail_template.html")
-HTML_OUT = os.path.join(os.path.dirname(OUT), "book_detail.html")
-with open(TPL, encoding="utf-8") as f:
-    html = f.read()
-js_safe = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-html = html.replace("__DETAIL_DATA__", js_safe)
-if "__DETAIL_DATA__" in html:
-    print(f"⚠️ 模板占位符未完全替换!")
-with open(HTML_OUT, "w", encoding="utf-8") as f:
-    f.write(html)
-print(f"已生成{HTML_OUT} ({os.path.getsize(HTML_OUT)/1024:.0f} KB)")
+# 注: 旧版此处还渲染独立详情页 book_detail.html (detail_template.html)。
+# 开源版产物统一收敛为 pedia(index.html), 该独立页已废弃, 模板已删除。
 
 # 摘要输出
 cat_count = Counter(s["category"] for s in settings_list)

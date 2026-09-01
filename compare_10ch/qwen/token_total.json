@@ -1,0 +1,13 @@
+{
+  "prompt_total": 7932,
+  "completion_total": 2526,
+  "by_model": {
+    "qwen3:8b": {
+      "prompt": 7932,
+      "completion": 2526,
+      "calls": 10
+    }
+  },
+  "calls": 10,
+  "runs": 0
+}
