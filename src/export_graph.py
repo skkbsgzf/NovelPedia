@@ -26,7 +26,7 @@ import config as C
 import vizutil
 
 DEFAULT_DB = C.DB_PATH
-DEFAULT_SRC = C.STAGE2_DIR   # stage2 产物(characters/settings/outlines)在 outputs/<书>_<日期>/stage2/
+DEFAULT_SRC = C.STAGE2_DIR   # stage2 产物(characters/settings/outlines)在 output/pedia_<书>_<日期>/stage2/
 
 # 设定类型 -> 颜色
 SET_COLOR = {

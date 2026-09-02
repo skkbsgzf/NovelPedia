@@ -466,7 +466,7 @@ def main():
     ap.add_argument("--settings", action="store_true", help="提取世界观设定")
     ap.add_argument("--summary", action="store_true", help="全书总结(需先有章纲)")
     ap.add_argument("--model", default=MODEL)
-    ap.add_argument("--out-dir", default=None, help="产物输出目录(默认 outputs/<书>_<日期>/stage2);用于本地/云端分流对比")
+    ap.add_argument("--out-dir", default=None, help="产物输出目录(默认 output/pedia_<书>_<日期>/stage2);用于本地/云端分流对比")
     args = ap.parse_args()
     MODEL = args.model
     # db 优先显式参数, 否则用 config.DB_PATH(已按小说名隔离)

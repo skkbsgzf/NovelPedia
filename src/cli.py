@@ -4,7 +4,8 @@ cli.py ——小说拆书工程统一命令行入口
 所有路径/章节数/模型都从 settings.json + models.json 读取（见 config.py / llm_client.py），
 这里只做任务编排与目录约定。
   - data/     中间产物：Stage1 数据库、向量缓存、LLM 直出 JSON、调试缓存（可跨次运行复用）
-  - outputs/  每次运行的可视化产物：outputs/<小说名>_<日期>/  下全是自包含 HTML + 数据 JSON
+  - output/   每次运行的可视化产物（输出统一）：output/pedia_<小说名>_<日期>/ 下全是自包含 HTML + 数据 JSON
+              （根 = 仓库父目录 output/，PEDIA_OUTPUT_ROOT 可覆盖；旧产物在仓库内 outputs/，双根兼容）
 
 用法:
   python src/cli.py <任务> [--backend 预设名] [--src DIR] [--chapters N] [--model M] [--key K]
@@ -21,7 +22,7 @@ cli.py ——小说拆书工程统一命令行入口
   graph         知识图谱 (角色关系 + 设定, 自包含HTML)
   detail        拆书详情页(四Tab 全景, 自包含HTML)
   rag "<问题>"  RAG 问答
-  viz          一键: 数据源(JSON) + pedia 导航页 -> outputs/<小说名>_<日期>/index.html
+  viz          一键: 数据源(JSON) + pedia 导航页 -> output/pedia_<小说名>_<日期>/index.html
   analyze       跑批日志健康度分析(H1-H5)
 
 全局参数:
@@ -52,7 +53,7 @@ import style_baseline
 ROOT = C.PROJECT_ROOT
 SRC = os.path.join(ROOT, "src")
 DATA = C.DATA_DIR
-OUTPUT = C.OUTPUT_DIR                                   # 本次运行的可视化产物目录
+OUTPUT = C.OUTPUT_DIR                                   # 本次运行的可视化产物目录(输出统一: output/pedia_<书>_<日期>/)
 MODELS = os.path.join(ROOT, "models.json")
 
 # 预设兜底(与 models.json 一致; 注册表缺失时用, 保证 cli 仍可跑)
@@ -205,7 +206,7 @@ def cmd_mine(args, env):
 
 
 def cmd_build(args, env):
-    # stage2 产物默认写到 outputs/<书>_<日期>/stage2/ (含 rag_answers)
+    # stage2 产物默认写到 output/pedia_<书>_<日期>/stage2/ (含 rag_answers)
     out = args.out_dir or C.STAGE2_DIR
     return run("stage2.py",
                ["--chapters", str(args.chapters), "--all-outlines", "--characters",
@@ -250,7 +251,7 @@ def cmd_rag(args, env):
 
 
 def cmd_stage3(args, env):
-    """一键 pedia: 数据源 -> outputs/<小说名>_<日期>/index.html (wiki 式单页)
+    """一键 pedia: 数据源 -> output/pedia_<小说名>_<日期>/index.html (wiki 式单页)
     产物:
       - index.html        pedia 主页面(自包含, 内嵌 detail/graph/personality/clue 数据)
       - detail_data.json  人物/设定/场景/文风结构化数据(供二次开发)
@@ -278,7 +279,7 @@ def cmd_stage3(args, env):
 
 
 def archive_stage3():
-    """生成 outputs/<小说名_<日期>/index.html —— 单页 Tab 版拆书工作台(四维)。
+    """生成 output/pedia_<小说名_<日期>/index.html —— 单页 Tab 版拆书工作台(四维)。
     模块: 剧情推理(结论→证据簇→原文) / 设定体系 / 人物简历 / 文风分析。
     内嵌 detail_data + graph_data + personality + clue_graph(剥向量) + 四维产物,
     单文件自包含, 零外部依赖。模板: src/index_template.html (占位符注入)。"""
@@ -288,17 +289,18 @@ def archive_stage3():
     #     使本函数无法脱离 cmd_stage3 独立调用。改为显式默认 C.STAGE1_DIR。
     s1_dir = C.STAGE1_DIR
     if not os.path.exists(os.path.join(s1_dir, "character_facts.json")):
-        outputs = os.path.join(C.PROJECT_ROOT, "outputs")
+        # 输出统一(2026-09-02): 新产物根 output/ + 旧根 outputs/ 双根扫描, 历史产物仍可用
         cands = []
-        if os.path.exists(outputs):
-            for d in os.listdir(outputs):
-                p = os.path.join(outputs, d, "stage1")
-                if os.path.exists(os.path.join(p, "character_facts.json")):
-                    try:
-                        mt = os.path.getmtime(os.path.join(p, "character_facts.json"))
-                    except Exception:
-                        mt = 0
-                    cands.append((mt, p))
+        for root in (C.OUTPUT_ROOT, C.LEGACY_OUTPUT_ROOT):
+            if os.path.isdir(root):
+                for d in os.listdir(root):
+                    p = os.path.join(root, d, "stage1")
+                    if os.path.exists(os.path.join(p, "character_facts.json")):
+                        try:
+                            mt = os.path.getmtime(os.path.join(p, "character_facts.json"))
+                        except Exception:
+                            mt = 0
+                        cands.append((mt, p))
         cands.sort(key=lambda x: -x[0])
         if cands:
             # 优先当前小说

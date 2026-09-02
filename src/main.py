@@ -198,7 +198,7 @@ def run(chapters=C.SAMPLE_CHAPTERS, base=C.OLLAMA_BASE, model=C.EXTRACT_MODEL,
         os.path.basename(db_path).replace(".db", "_report.json"))
     with open(rp, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
-    # ---- 归档到 outputs/<book>_<date>/stage1/ + 导出 Excel ----
+    # ---- 归档到 output/pedia_<book>_<date>/stage1/ + 导出 Excel ----
     try:
         os.makedirs(C.STAGE1_DIR, exist_ok=True)
         # db 副本

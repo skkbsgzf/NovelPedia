@@ -10,7 +10,7 @@ entity_registry.py —— 全局实体注册表（pedia 核心能力：别名→
 注意：本模块只做实体归一化，不含任何「剧情推理 / 暗线收集」逻辑——
 深度推理（clue_graph）已整体迁移到 studio，pedia 开源仓不再保留。
 
-产出：outputs/<书>_<日期>/stage1/entity_registry.json
+产出：output/pedia_<书>_<日期>/stage1/entity_registry.json
   { chapter_no: [ {canonical, aliases[], category} ] }
 """
 import sys

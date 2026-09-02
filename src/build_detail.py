@@ -4,7 +4,7 @@ build_detail.py ——构建「拆书详情页」全量数据(detail_data.json)
 数据源
   - data/stage1_v2_50.db  : paragraphs(原文50章 / chapters(章标题 / scenes(场景)
   - data/llm_50/cloud_fixed/ : characters / settings / outlines
-  - outputs/<小说名_<日期>/personality.json : 性格六维向量
+  - output/pedia_<小说名>_<日期>/personality.json : 性格六维向量
 
 产出 detail_data.json:
   book        : 书名/总章数文风分析范围
@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config as C
 import vizutil
 
-BASE = C.STAGE2_DIR   # stage2 产物(characters/settings/outlines/personality)在 outputs/<书>_<日期>/stage2/
+BASE = C.STAGE2_DIR   # stage2 产物(characters/settings/outlines/personality)在 output/pedia_<书>_<日期>/stage2/
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--src", default=C.RUN_SRC_DIR, help="Stage2 产物目录（local|cloud|cloud_fixed）")

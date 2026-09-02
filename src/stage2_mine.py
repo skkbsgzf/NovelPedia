@@ -82,15 +82,17 @@ def setup_backend(backend, doubt_index):
 
 
 def _latest_stage1_dir():
-    """找到最新的 stage1 产物目录(优先当前小说+时间戳; 否则扫 outputs 按 mtime 找含 character_facts 的最新目录)。"""
+    """找到最新的 stage1 产物目录(优先当前小说+时间戳; 否则扫输出根按 mtime 找含 character_facts 的最新目录)。
+    输出统一(2026-09-02): 新产物根 output/ + 旧根 outputs/ 双根扫描, 历史产物仍可用。"""
     if os.path.exists(C.STAGE1_DIR) and os.path.exists(
             os.path.join(C.STAGE1_DIR, "character_facts.json")):
         return C.STAGE1_DIR
-    outputs = os.path.join(C.PROJECT_ROOT, "outputs")
     cands = []
-    if os.path.exists(outputs):
-        for d in os.listdir(outputs):
-            s1 = os.path.join(outputs, d, "stage1")
+    for root in (C.OUTPUT_ROOT, C.LEGACY_OUTPUT_ROOT):
+        if not os.path.isdir(root):
+            continue
+        for d in os.listdir(root):
+            s1 = os.path.join(root, d, "stage1")
             if os.path.exists(os.path.join(s1, "character_facts.json")):
                 try:
                     mt = os.path.getmtime(os.path.join(s1, "character_facts.json"))

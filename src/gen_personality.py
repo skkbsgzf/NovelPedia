@@ -17,7 +17,7 @@ ap.add_argument("--model", default="glm-4.7-flash",
                 help="生成用模型 preset 名 (默认 glm-4.7-flash; 旧 dots3-note 需 key)")
 ap.add_argument("--force", action="store_true", help="强制全量重跑(忽略已有缓存)")
 A = ap.parse_args()
-# 新结构: stage2 产物在 outputs/<书>_<日期>/stage2/; --src 传具体目录则用之
+# 新结构: stage2 产物在 output/pedia_<书>_<日期>/stage2/; --src 传具体目录则用之
 BASE = A.src if (A.src and A.src != C.RUN_SRC_DIR and os.path.isdir(A.src)) else C.STAGE2_DIR
 
 

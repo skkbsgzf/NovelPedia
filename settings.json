@@ -13,7 +13,7 @@
     "embed_model": "bge-m3"
   },
   "run": {
-    "_说明": "运行行为。src_dir 指定读哪个 LLM 产物目录（可视化任务专用）；date_suffix 留空则自动用 日期_时间戳 拼输出文件夹名（同一天多次运行互不覆盖）；若手动指定固定后缀（如 20260827_incr），则多次运行进同一目录（settings_graph 增量累积）。archive 为知识库归档参数（长文本边际爆炸防护）。",
+    "_说明": "运行行为。src_dir 指定读哪个 LLM 产物目录（可视化任务专用）；date_suffix 留空则自动用 日期_时间戳 拼输出文件夹名（同一天多次运行互不覆盖）；若手动指定固定后缀（如 20260827_incr），则多次运行进同一目录（settings_graph 增量累积）。⚠输出统一：产物根固定为仓库父目录 output/，即 output/pedia_<书名>_<后缀>/（PEDIA_OUTPUT_ROOT 环境变量可改根）。archive 为知识库归档参数（长文本边际爆炸防护）。",
     "src_dir": "cloud_fixed",
     "date_suffix": "20260831_full",
     "archive": {

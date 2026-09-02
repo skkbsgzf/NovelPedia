@@ -6,7 +6,9 @@
 本文件保留 C.XXX 常量名供全工程引用(兼容零改动), 值全部来自注册表。
 目录约定（详见 README）：
   - data/     中间产物：Stage1 数据库、向量缓存、LLM 直出 JSON、调试缓存（可跨次运行复用）
-  - outputs/  每次运行的可视化产物：outputs/<小说名>_<日期>/  下全是自包含 HTML + 数据 JSON
+  - output/   每次运行的可视化产物（输出统一）：output/pedia_<小说名>_<日期>/ ，
+              下全是自包含 HTML + 数据 JSON；根 = 仓库父目录 output/（PEDIA_OUTPUT_ROOT 可覆盖），
+              旧产物仍在仓库内 outputs/（fallback 扫描双根兼容）
 """
 import os
 import re
@@ -17,6 +19,23 @@ import config_schema as _CS
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_PATH = os.path.join(PROJECT_ROOT, "settings.json")
+
+# 产物输出根目录(输出统一, 2026-09-02 起):
+#   默认 = 仓库父目录的 output/ (即 StoryScienceLab/output/), 产物形如 output/pedia_<小说名>_<日期>/
+#   外部用户可用环境变量 PEDIA_OUTPUT_ROOT 指回 outputs/ (可移植, 不破坏开源仓默认体验);
+#   未设环境变量且父目录不可写时, 自动回退仓库内 outputs/ (兼容独立 clone 场景)。
+_OUTPUT_ROOT_ENV = os.environ.get("PEDIA_OUTPUT_ROOT")
+if _OUTPUT_ROOT_ENV:
+    OUTPUT_ROOT = _OUTPUT_ROOT_ENV
+else:
+    _parent = os.path.dirname(PROJECT_ROOT)
+    OUTPUT_ROOT = os.path.join(_parent, "output")
+    try:
+        os.makedirs(OUTPUT_ROOT, exist_ok=True)
+    except OSError:
+        OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "outputs")
+# 旧输出根(仓库内 outputs/): 历史产物仍在此, fallback 扫描双根兼容
+LEGACY_OUTPUT_ROOT = os.path.join(PROJECT_ROOT, "outputs")
 
 # ===== 小说（注册表: novel.*）=====
 NOVEL_NAME = _CS.get("novel.name") or "小说"
@@ -45,7 +64,8 @@ DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 # 默认后缀带时间戳(YYYYMMDD_HHMMSS), 同一天多次运行互不覆盖;
 # 若 settings.json run.date_suffix 手动指定(如 "20260827_incr"), 则用固定后缀实现增量累积。
 _DATE_SUFFIX = _CS.get("run.date_suffix") or datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", f"{NOVEL_NAME}_{_DATE_SUFFIX}")
+# 输出统一: 产物根 = output/ (父目录), 每次运行 output/pedia_<小说名>_<日期>/
+OUTPUT_DIR = os.path.join(OUTPUT_ROOT, f"pedia_{NOVEL_NAME}_{_DATE_SUFFIX}")
 # 产物子目录: stage1 过程数据 / stage2 过程数据 / RAG
 STAGE1_DIR = os.path.join(OUTPUT_DIR, "stage1")
 STAGE2_DIR = os.path.join(OUTPUT_DIR, "stage2")
